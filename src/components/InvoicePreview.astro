@@ -1,0 +1,135 @@
+---
+// InvoicePreview component - Shows a preview of the generated invoice
+---
+
+<div id="invoice-preview" class="hidden animate-fade-in">
+  <div class="card max-w-4xl mx-auto my-8">
+    <!-- Preview Header with Logo -->
+    <div class="flex flex-col md:flex-row justify-between items-start mb-10">
+      <div>
+        <div id="preview-logo" class="h-24 mb-4"></div>
+        <div id="preview-sender-name" class="font-bold text-2xl text-gray-800 dark:text-white"></div>
+        <div id="preview-sender-address" class="text-gray-600 dark:text-gray-300 mt-1"></div>
+        <div id="preview-sender-contact" class="text-gray-600 dark:text-gray-300 mt-1"></div>
+      </div>
+      <div class="text-right mt-6 md:mt-0">
+        <div class="inline-block bg-indigo-50 dark:bg-indigo-900/50 px-5 py-3 rounded-lg mb-4">
+          <h1 class="text-3xl font-bold text-indigo-800 dark:text-indigo-300">INVOICE</h1>
+        </div>
+        <div class="space-y-1 text-right">
+          <div class="flex justify-end"><span class="font-medium text-gray-500 dark:text-gray-400 mr-3">Invoice #:</span> <span id="preview-invoice-number" class="text-gray-800 dark:text-white"></span></div>
+          <div class="flex justify-end"><span class="font-medium text-gray-500 dark:text-gray-400 mr-3">Date:</span> <span id="preview-invoice-date" class="text-gray-800 dark:text-white"></span></div>
+          <div class="flex justify-end"><span class="font-medium text-gray-500 dark:text-gray-400 mr-3">Due Date:</span> <span id="preview-due-date" class="text-gray-800 dark:text-white"></span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bill To Section -->
+    <div class="mb-10 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border-l-4 border-indigo-500">
+      <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">Bill To:</h2>
+      <div id="preview-client-name" class="font-bold text-xl text-gray-800 dark:text-white"></div>
+      <div id="preview-client-address" class="text-gray-600 dark:text-gray-300 mt-1"></div>
+      <div id="preview-client-contact" class="text-gray-600 dark:text-gray-300 mt-1"></div>
+    </div>
+    
+    <!-- Items Table -->
+    <div class="overflow-x-auto mb-10">
+      <table class="modern-table responsive-table">
+        <thead>
+          <tr>
+            <th class="py-4 px-6 text-left">Item Description</th>
+            <th class="py-4 px-6 text-right">Quantity</th>
+            <th class="py-4 px-6 text-right">Unit Price</th>
+            <th class="py-4 px-6 text-right">Tax</th>
+            <th class="py-4 px-6 text-right">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="preview-line-items">
+          <!-- Line items will be inserted here dynamically -->
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" class="py-3 px-6 text-right font-semibold dark:text-gray-300">Subtotal:</td>
+            <td class="py-3 px-6 text-right dark:text-gray-300">
+              <span id="preview-currency-symbol">$</span><span id="preview-subtotal"></span>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="py-3 px-6 text-right font-semibold dark:text-gray-300">Tax:</td>
+            <td class="py-3 px-6 text-right dark:text-gray-300">
+              <span id="preview-currency-symbol-tax">$</span><span id="preview-tax-total"></span>
+            </td>
+          </tr>
+          <tr class="bg-indigo-50 dark:bg-indigo-900/50">
+            <td colspan="4" class="py-4 px-6 text-right font-bold text-lg text-indigo-800 dark:text-indigo-300">Total:</td>
+            <td class="py-4 px-6 text-right font-bold text-lg text-indigo-800 dark:text-indigo-300">
+              <span id="preview-currency-symbol-total">$</span><span id="preview-invoice-total"></span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    
+    <!-- Notes Section -->
+    <div class="mb-10">
+      <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Notes</h2>
+        <div id="preview-notes" class="text-gray-600 dark:text-gray-300"></div>
+      </div>
+    </div>
+    
+    <!-- Bank Account Details Section -->
+    <div class="mb-10" id="bank-details-section">
+      <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border-l-4 border-indigo-500">
+        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">Payment Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <span class="font-medium text-gray-600 dark:text-gray-400">Bank Name:</span>
+            <span id="preview-bank-name" class="ml-2 text-gray-800 dark:text-white"></span>
+          </div>
+          <div>
+            <span class="font-medium text-gray-600 dark:text-gray-400">Account Holder:</span>
+            <span id="preview-account-holder" class="ml-2 text-gray-800 dark:text-white"></span>
+          </div>
+          <div>
+            <span class="font-medium text-gray-600 dark:text-gray-400">Account Number:</span>
+            <span id="preview-account-number" class="ml-2 text-gray-800 dark:text-white"></span>
+          </div>
+          <div>
+            <span class="font-medium text-gray-600 dark:text-gray-400">Routing/SWIFT/IBAN:</span>
+            <span id="preview-routing-number" class="ml-2 text-gray-800 dark:text-white"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Thank You Message -->
+    <div class="text-center text-gray-600 dark:text-gray-400 mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <p class="text-lg font-medium text-indigo-600 dark:text-indigo-400">Thank you for your business!</p>
+    </div>
+  </div>
+  
+  <!-- Preview Controls -->
+  <div class="max-w-4xl mx-auto my-8 flex flex-col md:flex-row justify-between space-y-4 md:space-y-0 no-print">
+    <button type="button" id="back-to-edit" class="btn-secondary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+      </svg>
+      Back to Editing
+    </button>
+    <div class="flex space-x-3">
+      <button type="button" id="preview-print-btn" class="btn-secondary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        Print
+      </button>
+      <button type="button" id="preview-pdf-btn" class="btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Generate PDF
+      </button>
+    </div>
+  </div>
+</div>

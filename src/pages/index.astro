@@ -1,11 +1,880 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import InvoiceForm from '../components/InvoiceForm.astro';
+import InvoicePreview from '../components/InvoicePreview.astro';
 ---
 
 <Layout>
-	<Welcome />
+  <main class="container mx-auto px-4 py-8">
+    <header class="mb-8 text-center">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2 dark:text-white">Simple Invoice Generator</h1>
+      <p class="text-gray-600 dark:text-gray-300">Create professional invoices in seconds</p>
+    </header>
+    
+    <!-- Invoice Generator App -->
+    <div id="invoice-app">
+      <InvoiceForm />
+      <InvoicePreview />
+    </div>
+  </main>
 </Layout>
+
+<script>
+  // Client-side JavaScript for the invoice generator
+  // Use dynamic imports for client-side libraries
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Dynamically import jsPDF and extensions
+    const jsPDFModule = await import('jspdf');
+    const jsPDF = jsPDFModule.default;
+    await import('jspdf-autotable');
+    
+    // Initialize the invoice generator functionality
+    initInvoiceGenerator();
+    
+    function initInvoiceGenerator() {
+      // Default values
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('invoice-date').value = today;
+      
+      // Set default due date (today + 30 days)
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30);
+      document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
+  
+      // Auto-generate invoice number if empty
+      if (!document.getElementById('invoice-number').value) {
+        document.getElementById('invoice-number').value = generateInvoiceNumber();
+      }
+      
+      // Event listeners
+      setupEventListeners();
+    }
+
+    function setupEventListeners() {
+      // Add line item button
+      document.getElementById('add-item').addEventListener('click', addLineItem);
+
+      // Remove line item buttons
+      document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', removeLineItem);
+      });
+
+      // Calculate totals when line item values change
+      document.querySelectorAll('.item-quantity, .item-price, .item-tax').forEach(input => {
+        input.addEventListener('input', calculateLineItemTotal);
+      });
+
+      // Preview invoice
+      document.getElementById('preview-invoice').addEventListener('click', previewInvoice);
+
+      // Back to editing from preview
+      document.getElementById('back-to-edit').addEventListener('click', backToEdit);
+
+      // Generate PDF from form or preview
+      document.getElementById('download-pdf').addEventListener('click', generatePDF);
+      document.getElementById('preview-pdf-btn').addEventListener('click', generatePDF);
+
+      // Print invoice
+      document.getElementById('print-invoice').addEventListener('click', printInvoice);
+      document.getElementById('preview-print-btn').addEventListener('click', printInvoice);
+
+      // Reset form
+      document.getElementById('reset-form').addEventListener('click', resetForm);
+
+      // Logo upload preview
+      document.getElementById('logo').addEventListener('change', handleLogoUpload);
+
+      // Save form data to localStorage on input changes
+      document.querySelectorAll('#invoiceForm input, #invoiceForm textarea, #invoiceForm select').forEach(input => {
+        input.addEventListener('input', saveFormToLocalStorage);
+      });
+
+      // Initial calculation
+      calculateTotals();
+
+      // Load data from localStorage if available
+      loadFormFromLocalStorage();
+    }
+
+    // Line item management
+    function addLineItem() {
+      const lineItems = document.getElementById('line-items');
+      const newRow = document.createElement('tr');
+      newRow.className = 'line-item';
+      newRow.innerHTML = `
+        <td class="px-6 py-4">
+          <input type="text" name="item-description[]" placeholder="Item description" required
+            class="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4">
+          <input type="number" name="item-quantity[]" min="1" value="1" required
+            class="item-quantity block w-32 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4">
+          <input type="number" name="item-price[]" min="0" step="0.01" required
+            class="item-price block w-32 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4">
+          <input type="number" name="item-tax[]" min="0" max="100" value="0" step="0.01"
+            class="item-tax block w-20 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+        </td>
+        <td class="px-6 py-4">
+          <span class="item-total">0.00</span>
+        </td>
+        <td class="px-6 py-4">
+          <button type="button" class="text-red-600 hover:text-red-900 remove-item">Remove</button>
+        </td>
+      `;
+      lineItems.appendChild(newRow);
+
+      // Enable all remove buttons if we have more than one item
+      if (document.querySelectorAll('.line-item').length > 1) {
+        document.querySelectorAll('.remove-item').forEach(btn => {
+          btn.disabled = false;
+        });
+      }
+
+      // Add event listeners to new inputs
+      newRow.querySelector('.item-quantity').addEventListener('input', calculateLineItemTotal);
+      newRow.querySelector('.item-price').addEventListener('input', calculateLineItemTotal);
+      newRow.querySelector('.item-tax').addEventListener('input', calculateLineItemTotal);
+      newRow.querySelector('.remove-item').addEventListener('click', removeLineItem);
+      
+      saveFormToLocalStorage();
+    }
+
+    function removeLineItem(e) {
+      const lineItems = document.querySelectorAll('.line-item');
+      
+      // Only remove if we have more than one item
+      if (lineItems.length > 1) {
+        e.target.closest('.line-item').remove();
+        calculateTotals();
+        
+        // Disable remove button if only one item left
+        if (document.querySelectorAll('.line-item').length === 1) {
+          document.querySelector('.remove-item').disabled = true;
+        }
+      }
+      
+      saveFormToLocalStorage();
+    }
+
+    // Calculation functions
+    function calculateLineItemTotal(e) {
+      const row = e.target.closest('.line-item');
+      const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+      const price = parseFloat(row.querySelector('.item-price').value) || 0;
+      const taxRate = parseFloat(row.querySelector('.item-tax').value) || 0;
+      
+      const subtotal = quantity * price;
+      const tax = subtotal * (taxRate / 100);
+      const total = subtotal + tax;
+      
+      row.querySelector('.item-total').textContent = total.toFixed(2);
+      
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      let subtotal = 0;
+      let totalTax = 0;
+      
+      document.querySelectorAll('.line-item').forEach(row => {
+        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        const taxRate = parseFloat(row.querySelector('.item-tax').value) || 0;
+        
+        const lineSubtotal = quantity * price;
+        const lineTax = lineSubtotal * (taxRate / 100);
+        
+        subtotal += lineSubtotal;
+        totalTax += lineTax;
+      });
+      
+      const total = subtotal + totalTax;
+      
+      document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('tax-total').textContent = totalTax.toFixed(2);
+      document.getElementById('invoice-total').textContent = total.toFixed(2);
+    }
+
+    // Validation function
+    function validateForm() {
+      // Check required fields
+      const requiredFields = document.querySelectorAll('#invoiceForm [required]');
+      let isValid = true;
+      
+      requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+          field.classList.add('border-red-500');
+          isValid = false;
+        } else {
+          field.classList.remove('border-red-500');
+        }
+      });
+      
+      if (!isValid) {
+        alert('Please fill in all required fields.');
+        return false;
+      }
+      
+      // At least one line item must have a description and price
+      const lineItems = document.querySelectorAll('.line-item');
+      let hasValidLineItem = false;
+      
+      lineItems.forEach(item => {
+        const description = item.querySelector('[name="item-description[]"]').value.trim();
+        const price = parseFloat(item.querySelector('[name="item-price[]"]').value);
+        
+        if (description && !isNaN(price) && price > 0) {
+          hasValidLineItem = true;
+        }
+      });
+      
+      if (!hasValidLineItem) {
+        alert('Please add at least one line item with a description and price.');
+        return false;
+      }
+      
+      return true;
+    }
+
+    // Generate a unique invoice number
+    function generateInvoiceNumber() {
+      const date = new Date();
+      const year = date.getFullYear().toString().substr(2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      
+      return `INV-${year}${month}${day}-${random}`;
+    }
+    
+    // Preview invoice
+    function previewInvoice() {
+      if (!validateForm()) {
+        return; // Don't proceed if validation fails
+      }
+      
+      // Hide form, show preview
+      document.getElementById('invoiceForm').classList.add('hidden');
+      document.getElementById('invoice-preview').classList.remove('hidden');
+      
+      // Populate preview with form data
+      // Sender info
+      document.getElementById('preview-sender-name').textContent = document.getElementById('sender-name').value;
+      document.getElementById('preview-sender-address').textContent = document.getElementById('sender-address').value;
+      
+      const senderEmail = document.getElementById('sender-email').value;
+      const senderPhone = document.getElementById('sender-phone').value;
+      const senderContact = [senderEmail, senderPhone].filter(Boolean).join(' | ');
+      document.getElementById('preview-sender-contact').textContent = senderContact;
+      
+      // Client info
+      document.getElementById('preview-client-name').textContent = document.getElementById('client-name').value;
+      document.getElementById('preview-client-address').textContent = document.getElementById('client-address').value;
+      
+      const clientEmail = document.getElementById('client-email').value;
+      const clientPhone = document.getElementById('client-phone').value;
+      const clientContact = [clientEmail, clientPhone].filter(Boolean).join(' | ');
+      document.getElementById('preview-client-contact').textContent = clientContact;
+      
+      // Invoice info
+      document.getElementById('preview-invoice-number').textContent = document.getElementById('invoice-number').value;
+      
+      const invoiceDate = new Date(document.getElementById('invoice-date').value);
+      document.getElementById('preview-invoice-date').textContent = invoiceDate.toLocaleDateString();
+      
+      const dueDate = new Date(document.getElementById('due-date').value);
+      document.getElementById('preview-due-date').textContent = dueDate.toLocaleDateString();
+      
+      // Set currency symbols
+      const currencySelect = document.getElementById('currency');
+      const currencyCode = currencySelect.value;
+      let currencySymbol = '$'; // Default
+      
+      // Map currency codes to symbols
+      switch(currencyCode) {
+        case 'EUR': currencySymbol = '€'; break;
+        case 'GBP': currencySymbol = '£'; break;
+        case 'JPY': currencySymbol = '¥'; break;
+        case 'INR': currencySymbol = '₹'; break;
+        case 'CNY': currencySymbol = '¥'; break;
+        default: currencySymbol = '$'; // USD, CAD, AUD all use $
+      }
+      
+      // Set currency symbols in preview
+      document.getElementById('preview-currency-symbol').textContent = currencySymbol;
+      document.getElementById('preview-currency-symbol-tax').textContent = currencySymbol;
+      document.getElementById('preview-currency-symbol-total').textContent = currencySymbol;
+      
+      // Logo
+      const logoPreview = document.getElementById('logo-preview');
+      const previewLogo = document.getElementById('preview-logo');
+      previewLogo.innerHTML = logoPreview.innerHTML;
+      
+      // Line items
+      const previewLineItems = document.getElementById('preview-line-items');
+      previewLineItems.innerHTML = '';
+      
+      document.querySelectorAll('.line-item').forEach(item => {
+        const description = item.querySelector('[name="item-description[]"]').value;
+        const quantity = parseFloat(item.querySelector('[name="item-quantity[]"]').value) || 0;
+        const price = parseFloat(item.querySelector('[name="item-price[]"]').value) || 0;
+        const taxRate = parseFloat(item.querySelector('[name="item-tax[]"]').value) || 0;
+        const itemTotal = item.querySelector('.item-total').textContent;
+        
+        if (description.trim() && price > 0) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-6 py-4">${description}</td>
+            <td class="px-6 py-4 text-right">${quantity}</td>
+            <td class="px-6 py-4 text-right">${currencySymbol}${price.toFixed(2)}</td>
+            <td class="px-6 py-4 text-right">${taxRate}%</td>
+            <td class="px-6 py-4 text-right">${currencySymbol}${itemTotal}</td>
+          `;
+          previewLineItems.appendChild(row);
+        }
+      });
+      
+      // Totals
+      document.getElementById('preview-subtotal').textContent = document.getElementById('subtotal').textContent;
+      document.getElementById('preview-tax-total').textContent = document.getElementById('tax-total').textContent;
+      document.getElementById('preview-invoice-total').textContent = document.getElementById('invoice-total').textContent;
+      
+      // Notes
+      document.getElementById('preview-notes').textContent = document.getElementById('notes').value;
+      
+      // Bank account details
+      const bankName = document.getElementById('bank-name').value;
+      const accountHolder = document.getElementById('account-holder').value;
+      const accountNumber = document.getElementById('account-number').value;
+      const routingNumber = document.getElementById('routing-number').value;
+      
+      document.getElementById('preview-bank-name').textContent = bankName;
+      document.getElementById('preview-account-holder').textContent = accountHolder;
+      document.getElementById('preview-account-number').textContent = accountNumber;
+      document.getElementById('preview-routing-number').textContent = routingNumber;
+      
+      // Hide bank details section if all fields are empty
+      if (!bankName && !accountHolder && !accountNumber && !routingNumber) {
+        document.getElementById('bank-details-section').classList.add('hidden');
+      } else {
+        document.getElementById('bank-details-section').classList.remove('hidden');
+      }
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+    
+    // Go back to editing from preview
+    function backToEdit() {
+      document.getElementById('invoice-preview').classList.add('hidden');
+      document.getElementById('invoiceForm').classList.remove('hidden');
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+    
+    // Generate PDF
+    function generatePDF() {
+      if (document.getElementById('invoiceForm').classList.contains('hidden') === false) {
+        if (!validateForm()) {
+          return; // Don't proceed if validation fails
+        }
+        previewInvoice();
+      }
+      
+      // Create new PDF with slightly larger format for better layout
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Set margins and initial position
+      const margin = 15;
+      const pageWidth = doc.internal.pageSize.width;
+      let yPos = margin;
+      let xPos = margin;
+      
+      // Add logo if exists
+      const logoPreview = document.getElementById('preview-logo').querySelector('img');
+      if (logoPreview) {
+        try {
+          doc.addImage(logoPreview.src, 'PNG', margin, yPos, 40, 20);
+          yPos += 25;
+        } catch (e) {
+          console.error("Could not add logo to PDF", e);
+          yPos += 5; // Still add some spacing if logo fails
+        }
+      } else {
+        yPos += 5; // Add spacing if no logo
+      }
+      
+      // Set up header with sender info and invoice header
+      // Sender info on left
+      const sellerName = document.getElementById('preview-sender-name').textContent;
+      const sellerAddress = document.getElementById('preview-sender-address').textContent;
+      const sellerContact = document.getElementById('preview-sender-contact').textContent;
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(sellerName, margin, yPos);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      yPos += 5;
+      doc.text(sellerAddress.replace(/\n/g, ', '), margin, yPos);
+      yPos += 5;
+      doc.text(sellerContact, margin, yPos);
+      
+      // Invoice header on right with blue background (similar to preview)
+      doc.setFillColor(235, 242, 254); // Light blue similar to indigo-50
+      doc.rect(pageWidth - margin - 50, margin, 50, 15, 'F');
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(67, 56, 202); // Indigo color
+      doc.text('INVOICE', pageWidth - margin - 25, margin + 10, { align: 'center' });
+      doc.setTextColor(0, 0, 0); // Reset text color
+      
+      // Invoice details on right
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      yPos = margin + 20;
+      
+      const invoiceNumber = document.getElementById('preview-invoice-number').textContent;
+      const invoiceDate = document.getElementById('preview-invoice-date').textContent;
+      const dueDate = document.getElementById('preview-due-date').textContent;
+      
+      doc.text(`Invoice #: ${invoiceNumber}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 5;
+      doc.text(`Date: ${invoiceDate}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 5;
+      doc.text(`Due Date: ${dueDate}`, pageWidth - margin, yPos, { align: 'right' });
+      
+      // Bill to section with gray background
+      yPos += 15;
+      const clientName = document.getElementById('preview-client-name').textContent;
+      const clientAddress = document.getElementById('preview-client-address').textContent;
+      const clientContact = document.getElementById('preview-client-contact').textContent;
+      
+      doc.setFillColor(245, 245, 245); // Light gray similar to gray-50
+      doc.rect(margin, yPos, pageWidth - (margin * 2), 25, 'F');
+      
+      // Add a left border similar to the preview (indigo)
+      doc.setDrawColor(79, 70, 229); // Indigo color
+      doc.setLineWidth(1.5);
+      doc.line(margin, yPos, margin, yPos + 25);
+      doc.setDrawColor(0, 0, 0); // Reset line color
+      
+      yPos += 5;
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Bill To:', margin + 5, yPos);
+      yPos += 5;
+      doc.setFontSize(12);
+      doc.text(clientName, margin + 5, yPos);
+      yPos += 5;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(clientAddress.replace(/\n/g, ', '), margin + 5, yPos);
+      yPos += 5;
+      doc.text(clientContact, margin + 5, yPos);
+      
+      // Add Line items table
+      yPos += 15;
+      const lineItems = [];
+      
+      // Table header
+      lineItems.push(['Item Description', 'Quantity', 'Unit Price', 'Tax', 'Amount']);
+      
+      // Get table rows
+      document.querySelectorAll('#preview-line-items tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        lineItems.push([
+          cells[0].textContent,
+          cells[1].textContent,
+          cells[2].textContent,
+          cells[3].textContent,
+          cells[4].textContent
+        ]);
+      });
+      
+      // Add table using autoTable with styling similar to preview
+      doc.autoTable({
+        head: [lineItems[0]],
+        body: lineItems.slice(1),
+        startY: yPos,
+        margin: { left: margin, right: margin },
+        styles: { 
+          fontSize: 10,
+          lineWidth: 0.1,
+        },
+        headStyles: {
+          fillColor: [255, 255, 255],
+          textColor: [0, 0, 0],
+          fontStyle: 'bold',
+          lineColor: [220, 220, 220],
+          lineWidth: 0.1
+        },
+        bodyStyles: {
+          lineColor: [220, 220, 220]
+        },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { cellWidth: 20, halign: 'right' },
+          2: { cellWidth: 25, halign: 'right' },
+          3: { cellWidth: 20, halign: 'right' },
+          4: { cellWidth: 25, halign: 'right' }
+        },
+        didParseCell: function(data) {
+          // Make header row bold
+          if (data.row.index === 0) {
+            data.cell.styles.fontStyle = 'bold';
+          }
+        }
+      });
+      
+      // Get position after table
+      yPos = doc.lastAutoTable.finalY + 5;
+      
+      // Add totals with styling similar to preview
+      const subtotal = document.getElementById('preview-subtotal').textContent;
+      const taxTotal = document.getElementById('preview-tax-total').textContent;
+      const total = document.getElementById('preview-invoice-total').textContent;
+      
+      // Subtotal
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Subtotal:', pageWidth - margin - 30, yPos, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.text(subtotal, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 5;
+      
+      // Tax
+      doc.setFont('helvetica', 'bold');
+      doc.text('Tax:', pageWidth - margin - 30, yPos, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.text(taxTotal, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 5;
+      
+      // Total with background similar to preview
+      doc.setFillColor(235, 242, 254); // Light blue similar to indigo-50
+      doc.rect(pageWidth - margin - 80, yPos - 4, 80, 10, 'F');
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(67, 56, 202); // Indigo color
+      doc.text('Total:', pageWidth - margin - 30, yPos, { align: 'right' });
+      doc.text(total, pageWidth - margin, yPos, { align: 'right' });
+      doc.setTextColor(0, 0, 0); // Reset text color
+      yPos += 15;
+      
+      // Add notes section with gray background
+      const notes = document.getElementById('preview-notes').textContent;
+      if (notes) {
+        doc.setFillColor(245, 245, 245); // Light gray
+        doc.rect(margin, yPos, pageWidth - (margin * 2), 25, 'F');
+        
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        yPos += 5;
+        doc.text('Notes', margin + 5, yPos);
+        yPos += 5;
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        
+        // Split long notes into multiple lines
+        const splitNotes = doc.splitTextToSize(notes, pageWidth - (margin * 2) - 10);
+        doc.text(splitNotes, margin + 5, yPos);
+        yPos += splitNotes.length * 5 + 5; // Add extra space after notes
+      }
+      
+      // Add bank account details section with gray background
+      const bankName = document.getElementById('bank-name').value;
+      const accountHolder = document.getElementById('account-holder').value;
+      const accountNumber = document.getElementById('account-number').value;
+      const routingNumber = document.getElementById('routing-number').value;
+      
+      if (bankName || accountHolder || accountNumber || routingNumber) {
+        doc.setFillColor(245, 245, 245); // Light gray
+        doc.rect(margin, yPos, pageWidth - (margin * 2), 30, 'F');
+        
+        // Add a left border similar to the preview (indigo)
+        doc.setDrawColor(79, 70, 229); // Indigo color
+        doc.setLineWidth(1.5);
+        doc.line(margin, yPos, margin, yPos + 30);
+        doc.setDrawColor(0, 0, 0); // Reset line color
+        
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        yPos += 5;
+        doc.text('Payment Details', margin + 5, yPos);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        
+        yPos += 5;
+        if (bankName) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Bank Name:', margin + 5, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(bankName, margin + 30, yPos);
+        }
+        
+        yPos += 5;
+        if (accountHolder) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Account Holder:', margin + 5, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(accountHolder, margin + 30, yPos);
+        }
+        
+        yPos += 5;
+        if (accountNumber) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Account Number:', margin + 5, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(accountNumber, margin + 30, yPos);
+        }
+        
+        yPos += 5;
+        if (routingNumber) {
+          doc.setFont('helvetica', 'bold');
+          doc.text('Routing/SWIFT/IBAN:', margin + 5, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(routingNumber, margin + 40, yPos);
+        }
+        
+        yPos += 10; // Add space after bank details
+      }
+      
+      // Add thank you message at bottom
+      yPos = doc.internal.pageSize.height - 25;
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(67, 56, 202); // Indigo color
+      doc.text('Thank you for your business!', pageWidth / 2, yPos, { align: 'center' });
+      doc.setTextColor(0, 0, 0); // Reset text color
+      
+      // Save PDF
+      const filename = `Invoice_${invoiceNumber.replace(/\s+/g, '_')}.pdf`;
+      doc.save(filename);
+    }
+    
+    // Print invoice
+    function printInvoice() {
+      // If printing from form view, first populate the preview
+      if (document.getElementById('invoiceForm').classList.contains('hidden') === false) {
+        if (!validateForm()) {
+          return; // Don't proceed if validation fails
+        }
+        previewInvoice();
+      }
+      
+      // Use browser print function
+      window.print();
+    }
+    
+    // Save form data to localStorage
+    function saveFormToLocalStorage() {
+      const formData = {
+        senderName: document.getElementById('sender-name').value,
+        senderAddress: document.getElementById('sender-address').value,
+        senderEmail: document.getElementById('sender-email').value,
+        senderPhone: document.getElementById('sender-phone').value,
+        clientName: document.getElementById('client-name').value,
+        clientAddress: document.getElementById('client-address').value,
+        clientEmail: document.getElementById('client-email').value,
+        clientPhone: document.getElementById('client-phone').value,
+        invoiceNumber: document.getElementById('invoice-number').value,
+        invoiceDate: document.getElementById('invoice-date').value,
+        dueDate: document.getElementById('due-date').value,
+        currency: document.getElementById('currency').value,
+        notes: document.getElementById('notes').value,
+        bankName: document.getElementById('bank-name').value,
+        accountHolder: document.getElementById('account-holder').value,
+        accountNumber: document.getElementById('account-number').value,
+        routingNumber: document.getElementById('routing-number').value,
+        lineItems: []
+      };
+      
+      // Save line items
+      document.querySelectorAll('.line-item').forEach(item => {
+        formData.lineItems.push({
+          description: item.querySelector('[name="item-description[]"]').value,
+          quantity: item.querySelector('[name="item-quantity[]"]').value,
+          price: item.querySelector('[name="item-price[]"]').value,
+          tax: item.querySelector('[name="item-tax[]"]').value
+        });
+      });
+      
+      localStorage.setItem('invoiceFormData', JSON.stringify(formData));
+    }
+    
+    // Load form data from localStorage
+    function loadFormFromLocalStorage() {
+      const savedData = localStorage.getItem('invoiceFormData');
+      if (!savedData) return;
+      
+      try {
+        const formData = JSON.parse(savedData);
+        
+        // Populate form fields
+        document.getElementById('sender-name').value = formData.senderName || '';
+        document.getElementById('sender-address').value = formData.senderAddress || '';
+        document.getElementById('sender-email').value = formData.senderEmail || '';
+        document.getElementById('sender-phone').value = formData.senderPhone || '';
+        document.getElementById('client-name').value = formData.clientName || '';
+        document.getElementById('client-address').value = formData.clientAddress || '';
+        document.getElementById('client-email').value = formData.clientEmail || '';
+        document.getElementById('client-phone').value = formData.clientPhone || '';
+        document.getElementById('invoice-number').value = formData.invoiceNumber || '';
+        document.getElementById('invoice-date').value = formData.invoiceDate || '';
+        document.getElementById('due-date').value = formData.dueDate || '';
+        document.getElementById('notes').value = formData.notes || '';
+        
+        // Load currency and bank account details
+        if (formData.currency) document.getElementById('currency').value = formData.currency;
+        if (formData.bankName) document.getElementById('bank-name').value = formData.bankName;
+        if (formData.accountHolder) document.getElementById('account-holder').value = formData.accountHolder;
+        if (formData.accountNumber) document.getElementById('account-number').value = formData.accountNumber;
+        if (formData.routingNumber) document.getElementById('routing-number').value = formData.routingNumber;
+        
+        // Load line items
+        if (formData.lineItems && formData.lineItems.length) {
+          // Remove all existing line items first
+          const lineItems = document.getElementById('line-items');
+          while (lineItems.children.length > 1) {
+            lineItems.removeChild(lineItems.lastChild);
+          }
+          
+          // Add the first line item
+          const firstItem = lineItems.querySelector('.line-item');
+          firstItem.querySelector('[name="item-description[]"]').value = formData.lineItems[0].description || '';
+          firstItem.querySelector('[name="item-quantity[]"]').value = formData.lineItems[0].quantity || '1';
+          firstItem.querySelector('[name="item-price[]"]').value = formData.lineItems[0].price || '';
+          firstItem.querySelector('[name="item-tax[]"]').value = formData.lineItems[0].tax || '0';
+          
+          // Add additional line items
+          for (let i = 1; i < formData.lineItems.length; i++) {
+            addLineItem();
+            const items = document.querySelectorAll('.line-item');
+            const currentItem = items[items.length - 1];
+            currentItem.querySelector('[name="item-description[]"]').value = formData.lineItems[i].description || '';
+            currentItem.querySelector('[name="item-quantity[]"]').value = formData.lineItems[i].quantity || '1';
+            currentItem.querySelector('[name="item-price[]"]').value = formData.lineItems[i].price || '';
+            currentItem.querySelector('[name="item-tax[]"]').value = formData.lineItems[i].tax || '0';
+          }
+        }
+        
+        // Calculate totals
+        calculateTotals();
+      } catch (error) {
+        console.error('Error loading saved data:', error);
+        // Continue without loading data
+      }
+    }
+    
+    // Reset form
+    function resetForm() {
+      if (confirm('Are you sure you want to clear all form data?')) {
+        document.getElementById('invoiceForm').reset();
+        
+        // Reset line items to just one
+        const lineItems = document.getElementById('line-items');
+        while (lineItems.children.length > 1) {
+          lineItems.removeChild(lineItems.lastChild);
+        }
+        
+        // Reset the first line item fields
+        const firstItem = lineItems.querySelector('.line-item');
+        firstItem.querySelector('[name="item-description[]"]').value = '';
+        firstItem.querySelector('[name="item-quantity[]"]').value = '1';
+        firstItem.querySelector('[name="item-price[]"]').value = '';
+        firstItem.querySelector('[name="item-tax[]"]').value = '0';
+        
+        // Clear logo
+        document.getElementById('logo-preview').innerHTML = '';
+        document.getElementById('logo').value = '';
+        
+        // Reset currency to USD
+        document.getElementById('currency').value = 'USD';
+        
+        // Clear bank account details
+        document.getElementById('bank-name').value = '';
+        document.getElementById('account-holder').value = '';
+        document.getElementById('account-number').value = '';
+        document.getElementById('routing-number').value = '';
+        
+        // Set default dates
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('invoice-date').value = today;
+        
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 30);
+        document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
+        
+        // Generate new invoice number
+        document.getElementById('invoice-number').value = generateInvoiceNumber();
+        
+        // Reset totals
+        calculateTotals();
+        
+        // Clear localStorage
+        localStorage.removeItem('invoiceFormData');
+      }
+    }
+    
+    // Handle logo upload preview
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const logoPreview = document.getElementById('logo-preview');
+      logoPreview.innerHTML = '';
+      
+      // Only accept image files
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        event.target.value = '';
+        return;
+      }
+      
+      // Create image preview
+      const img = document.createElement('img');
+      img.classList.add('max-h-20', 'max-w-full', 'object-contain', 'mx-auto');
+      logoPreview.appendChild(img);
+      
+      // Use FileReader to display image
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        img.src = e.target.result;
+        saveFormToLocalStorage();
+      }
+      reader.readAsDataURL(file);
+    }
+
+    // The rest of your functions below
+  });
+</script>
+
+<style>
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #invoice-preview,
+    #invoice-preview * {
+      visibility: visible;
+    }
+    #invoice-preview {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    #invoice-preview button {
+      display: none;
+    }
+  }
+</style>

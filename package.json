@@ -6,9 +6,19 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "build:css": "tailwindcss -i ./src/styles/global.css -o ./public/global.css"
   },
   "dependencies": {
-    "astro": "^5.6.1"
+    "astro": "^4.0.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.6.0"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^6.0.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.3.5",
+    "tailwindcss-cli": "^0.1.2"
   }
 }
