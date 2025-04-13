@@ -11,20 +11,125 @@ import '../styles/global.css';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="stylesheet" href="/global.css" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Simple Invoice Generator</title>
+		<title>InvoiceCloud - Modern Invoice Generator</title>
+		<!-- Add modern font -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 	</head>
-	<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-200">
-		<div class="absolute top-4 right-4 flex items-center">
-			<button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-				<svg id="sun-icon" class="w-6 h-6 hidden dark:block text-yellow-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-					<path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
-				</svg>
-				<svg id="moon-icon" class="w-6 h-6 block dark:hidden text-gray-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-					<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-				</svg>
-			</button>
+	<body class="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors duration-200 font-inter">
+		<!-- Modern navbar -->
+		<nav class="fixed w-full z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 shadow-sm">
+			<div class="container mx-auto px-4 md:px-6 py-3">
+				<div class="flex justify-between items-center">
+					<div class="flex items-center">
+						<span class="text-indigo-600 dark:text-indigo-400">
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
+								<path d="M12 7.5a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z" />
+								<path fill-rule="evenodd" d="M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25c1.035 0 1.875.84 1.875 1.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 14.625v-9.75zM8.25 9.75a3.75 3.75 0 117.5 0 3.75 3.75 0 01-7.5 0zM18.75 9a.75.75 0 00-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 00.75-.75V9.75a.75.75 0 00-.75-.75h-.008zM4.5 9.75A.75.75 0 015.25 9h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H5.25a.75.75 0 01-.75-.75V9.75z" clip-rule="evenodd" />
+								<path d="M2.25 18a.75.75 0 000 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 00-.75-.75H2.25z" />
+							</svg>
+						</span>
+						<span class="ml-2 text-lg font-medium text-gray-900 dark:text-white">InvoiceCloud</span>
+					</div>
+					
+					<div class="flex items-center space-x-4">
+						<button id="help-btn" class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+							</svg>
+						</button>
+						<button id="theme-toggle" class="p-2 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+							<svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path d="M12 3v1m0 16v1m-9-9H2m18 0h1m-4.24-4.96l-.707-.707M5.34 18.66l-.707-.707m14.14-9.9l-.707.707M5.34 5.34l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+							<svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+								<path d="M21 12.79A9 9 0 1111.21 3 A7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<div class="pt-16">
+			<slot />
 		</div>
-		<slot />
+		
+		<!-- Modern help modal -->
+		<div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+			<div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg max-w-xl w-full mx-4 overflow-hidden">
+				<div class="flex justify-between items-center p-5 border-b border-gray-200 dark:border-slate-700">
+					<h3 class="text-xl font-medium text-gray-900 dark:text-white">Help & Tips</h3>
+					<button id="close-help" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+						</svg>
+					</button>
+				</div>
+				<div class="p-5 max-h-[70vh] overflow-y-auto">
+					<div class="space-y-5">
+						<div class="flex">
+							<div class="flex-shrink-0 mr-3 mt-1 text-indigo-500">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900 dark:text-white mb-1">Getting Started</h4>
+								<p class="text-gray-600 dark:text-gray-300">Fill in your details, add line items, and generate a professional invoice in seconds. All data stays in your browser for complete privacy.</p>
+							</div>
+						</div>
+						<div class="flex">
+							<div class="flex-shrink-0 mr-3 mt-1 text-indigo-500">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900 dark:text-white mb-1">Save & Load</h4>
+								<p class="text-gray-600 dark:text-gray-300">Use the save feature to download your invoice as a JSON file. You can reload it later to continue editing.</p>
+							</div>
+						</div>
+						<div class="flex">
+							<div class="flex-shrink-0 mr-3 mt-1 text-indigo-500">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900 dark:text-white mb-1">Dark Mode</h4>
+								<p class="text-gray-600 dark:text-gray-300">Toggle between light and dark mode using the button in the top navigation bar.</p>
+							</div>
+						</div>
+						<div class="flex">
+							<div class="flex-shrink-0 mr-3 mt-1 text-indigo-500">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+								</svg>
+							</div>
+							<div>
+								<h4 class="font-medium text-gray-900 dark:text-white mb-1">PDF Generation</h4>
+								<p class="text-gray-600 dark:text-gray-300">Click the "Generate PDF" button to create a professional PDF invoice you can download, save, or print.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="bg-gray-50 dark:bg-slate-700/50 p-4 flex justify-end">
+					<button id="close-help-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+						Got it
+					</button>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Modern footer -->
+		<footer class="mt-20 py-8 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400 text-sm">
+			<div class="container mx-auto px-4">
+				<p>&copy; {new Date().getFullYear()} InvoiceCloud. All rights reserved.</p>
+				<p class="mt-1">Built with <span class="text-indigo-600 dark:text-indigo-400">❤</span> using Astro.</p>
+			</div>
+		</footer>
 	</body>
 </html>
 
@@ -42,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 	
 	// Toggle theme
-	themeToggle.addEventListener('click', () => {
+	themeToggle?.addEventListener('click', () => {
 		if (document.documentElement.classList.contains('dark')) {
 			document.documentElement.classList.remove('dark');
 			localStorage.theme = 'light';
@@ -51,14 +156,57 @@ document.addEventListener('DOMContentLoaded', () => {
 			localStorage.theme = 'dark';
 		}
 	});
+	
+	// Help modal
+	const helpBtn = document.getElementById('help-btn');
+	const helpModal = document.getElementById('help-modal');
+	const closeHelp = document.getElementById('close-help');
+	const closeHelpBtn = document.getElementById('close-help-btn');
+	
+	const toggleHelpModal = () => {
+		helpModal?.classList.toggle('hidden');
+	};
+	
+	helpBtn?.addEventListener('click', toggleHelpModal);
+	closeHelp?.addEventListener('click', toggleHelpModal);
+	closeHelpBtn?.addEventListener('click', toggleHelpModal);
+	
+	// Close modal when clicking outside
+	helpModal?.addEventListener('click', (e) => {
+		if (e.target === helpModal) {
+			toggleHelpModal();
+		}
+	});
 });
 </script>
 
-<style>
-	html,
+<style is:global>
+	:root {
+		--color-primary: 79, 70, 229;
+		--color-text: 31, 41, 55;
+		--color-text-light: 107, 114, 128;
+		--color-background: 249, 250, 251;
+		--color-border: 229, 231, 235;
+	}
+	
+	.dark {
+		--color-primary: 99, 102, 241;
+		--color-text: 255, 255, 255;
+		--color-text-light: 156, 163, 175;
+		--color-background: 15, 23, 42;
+		--color-border: 51, 65, 85;
+	}
+	
+	html {
+		scroll-behavior: smooth;
+	}
+	
 	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
+		font-family: 'Inter', sans-serif;
+		color: rgb(var(--color-text));
+	}
+	
+	.font-inter {
+		font-family: 'Inter', sans-serif;
 	}
 </style>

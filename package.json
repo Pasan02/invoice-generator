@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "astro": "^4.0.0",
+    "html-to-image": "^1.11.13",
     "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.6.0"
+    "jspdf-autotable": "^3.6.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^6.0.2",
