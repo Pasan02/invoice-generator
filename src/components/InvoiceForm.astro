@@ -20,7 +20,7 @@
           Line Items
         </button>
         <button type="button" data-tab="notes" class="tab-link py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300">
-          Notes & Terms
+          Notes
         </button>
         <button type="button" data-tab="payment" class="tab-link py-4 px-1 border-b-2 border-transparent font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300">
           Payment Details
@@ -136,7 +136,7 @@
         <div class="flex justify-between mt-6">
           <button type="button" class="btn-secondary prev-tab" data-prev="sender">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414-1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414-1.414L7.414 9H15a1 1 0 110 2H7.414l2.293-2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
             </svg>
             Previous
           </button>
@@ -283,7 +283,7 @@
             Previous
           </button>
           <button type="button" class="btn-primary next-tab" data-next="notes">
-            Next: Notes & Terms
+            Next: Notes
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
@@ -291,22 +291,16 @@
         </div>
       </div>
 
-      <!-- Notes & Terms Tab -->
+      <!-- Notes Tab (formerly Notes & Terms Tab) -->
       <div id="notes-tab" class="tab-pane hidden">
         <div class="card">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Notes & Terms</h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Notes</h2>
           
           <div class="grid grid-cols-1 gap-6">
             <div>
               <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes to Client</label>
-              <textarea id="notes" rows="4" class="form-textarea block w-full p-2.5" placeholder="Add any notes or special instructions for your client..."></textarea>
+              <textarea id="notes" rows="6" class="form-textarea block w-full p-2.5" placeholder="Add any notes or special instructions for your client..."></textarea>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">These notes will appear on the invoice.</p>
-            </div>
-            
-            <div>
-              <label for="terms" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Terms & Conditions</label>
-              <textarea id="terms" rows="4" class="form-textarea block w-full p-2.5" placeholder="Add your payment terms, refund policy, etc..."></textarea>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Terms will appear at the bottom of the invoice.</p>
             </div>
           </div>
         </div>
@@ -409,6 +403,12 @@
 <script>
   import { initInvoiceForm } from '../assets/invoice-form.js';
   
-  // Initialize the invoice form
-  initInvoiceForm();
+  // Initialize the invoice form but prevent double initialization
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check if the form is already initialized
+    if (!window.invoiceFormInitialized) {
+      initInvoiceForm();
+      window.invoiceFormInitialized = true;
+    }
+  });
 </script>

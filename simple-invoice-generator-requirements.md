@@ -60,3 +60,22 @@
 - Functional invoice creation and PDF generation  
 - README file with setup and usage instructions  
 
+
+## 🚀 Future Enhancements: Advanced Options
+
+| Requirement ID | Description                          | User Story                                                                 | Expected Behaviour / Outcome                                                                                 |
+|----------------|--------------------------------------|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| RQ-023         | Invoice Status Indicators            | As a user, I want to set an invoice status (paid, unpaid, overdue, draft) to better track payments. | A toggle in advanced options enables status selection, which appears as a color-coded indicator on the invoice and PDF. |
+| RQ-024         | Custom Color Themes                  | As a user, I want to customize the color scheme of my invoices to match my brand. | Advanced options panel provides a color picker with presets (indigo, blue, emerald, purple, rose) that changes the invoice accent colors. |
+| RQ-025         | Custom Footer Text                   | As a user, I want to personalize the footer message on my invoices. | Text fields in advanced options allow customizing the thank you message and brand/company name in the footer. |
+| RQ-026         | Advanced Options Panel               | As a user, I want a dedicated place for less commonly used settings without cluttering the main form. | A floating "Advanced Options" button in the corner opens a modal with additional customization settings. |
+
+These advanced features would be implemented with:
+
+1. A floating panel accessible from the main form interface
+2. Settings saved to localStorage for persistence across sessions
+3. Real-time preview updates when options are changed
+4. Integration with the PDF generation pipeline to reflect customizations
+5. Default values for all options to ensure the basic experience remains clean and simple
+
+Implementation priority would be lower than core invoice functionality but would provide valuable personalization options for power users.

@@ -109,8 +109,10 @@ function initLineItems() {
   const itemsTableBody = document.getElementById('items-table-body');
   
   if (addItemButton && itemsTableBody) {
-    // Add initial row
-    addItemRow(itemsTableBody);
+    // Only add initial row if the table is empty
+    if (itemsTableBody.querySelectorAll('tr').length === 0) {
+      addItemRow(itemsTableBody);
+    }
     
     addItemButton.addEventListener('click', function() {
       addItemRow(itemsTableBody);
@@ -436,7 +438,6 @@ function collectFormData() {
     },
     items: [],
     notes: document.getElementById('notes').value,
-    terms: document.getElementById('terms').value,
     payment: {
       include: document.getElementById('include-payment').checked,
       bankName: document.getElementById('bank-name').value,
@@ -508,49 +509,52 @@ function loadFormData(data) {
   document.getElementById('tax-rate').value = data.invoice?.taxRate || '';
   document.getElementById('tax-inclusive').checked = data.invoice?.taxInclusive || false;
   
-  // Load items
-  // First clear existing items
-  itemsTableBody.innerHTML = '';
+  // Load items - clear ALL existing items
+  if (itemsTableBody) {
+    itemsTableBody.innerHTML = '';
   
-  // Then add saved items
-  if (data.items && data.items.length > 0) {
-    data.items.forEach(item => {
-      const newRow = document.createElement('tr');
-      newRow.innerHTML = `
-        <td class="px-6 py-4">
-          <input type="text" class="form-input w-full p-2 item-description" placeholder="Item description" value="${item.description || ''}">
-        </td>
-        <td class="px-6 py-4">
-          <input type="number" class="form-input w-full p-2 text-right item-quantity" value="${item.quantity || '1'}" min="1" step="1">
-        </td>
-        <td class="px-6 py-4">
-          <input type="number" class="form-input w-full p-2 text-right item-rate" value="${item.rate || '0.00'}" min="0" step="0.01">
-        </td>
-        <td class="px-6 py-4">
-          <input type="number" class="form-input w-full p-2 text-right item-tax" value="${item.tax || '0'}" min="0" max="100" step="0.1">
-        </td>
-        <td class="px-6 py-4 text-right item-amount">0.00</td>
-        <td class="px-6 py-4 text-right">
-          <button type="button" class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors delete-item">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </td>
-      `;
-      itemsTableBody.appendChild(newRow);
-      
-      // Calculate amount for this row
-      calculateItemAmount(newRow);
-    });
-  } else {
-    // Add at least one empty row
-    addItemRow(itemsTableBody);
+    // Then add saved items
+    if (data.items && data.items.length > 0) {
+      data.items.forEach(item => {
+        if (item.description || parseFloat(item.rate) > 0 || parseFloat(item.quantity) > 0) {
+          // Only add non-empty rows
+          const newRow = document.createElement('tr');
+          newRow.innerHTML = `
+            <td class="px-6 py-4">
+              <input type="text" class="form-input w-full p-2 item-description" placeholder="Item description" value="${item.description || ''}">
+            </td>
+            <td class="px-6 py-4">
+              <input type="number" class="form-input w-full p-2 text-right item-quantity" value="${item.quantity || '1'}" min="1" step="1">
+            </td>
+            <td class="px-6 py-4">
+              <input type="number" class="form-input w-full p-2 text-right item-rate" value="${item.rate || '0.00'}" min="0" step="0.01">
+            </td>
+            <td class="px-6 py-4">
+              <input type="number" class="form-input w-full p-2 text-right item-tax" value="${item.tax || '0'}" min="0" max="100" step="0.1">
+            </td>
+            <td class="px-6 py-4 text-right item-amount">0.00</td>
+            <td class="px-6 py-4 text-right">
+              <button type="button" class="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors delete-item">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </td>
+          `;
+          itemsTableBody.appendChild(newRow);
+          
+          // Calculate amount for this row
+          calculateItemAmount(newRow);
+        }
+      });
+    } else {
+      // Add one empty row if no items
+      addItemRow(itemsTableBody);
+    }
   }
   
-  // Load notes and terms
+  // Load notes (without terms)
   document.getElementById('notes').value = data.notes || '';
-  document.getElementById('terms').value = data.terms || '';
   
   // Load payment details
   document.getElementById('include-payment').checked = data.payment?.include || false;
@@ -571,21 +575,11 @@ function resetForm() {
   const itemsTableBody = document.getElementById('items-table-body');
   if (!itemsTableBody) return;
   
-  // Clear item rows except the first one
-  const rows = itemsTableBody.querySelectorAll('tr');
-  for (let i = 1; i < rows.length; i++) {
-    rows[i].remove();
-  }
-  
-  // Reset the first row
-  const firstRow = rows[0];
-  if (firstRow) {
-    firstRow.querySelector('.item-description').value = '';
-    firstRow.querySelector('.item-quantity').value = '1';
-    firstRow.querySelector('.item-rate').value = '0.00';
-    firstRow.querySelector('.item-tax').value = '0';
-    firstRow.querySelector('.item-amount').textContent = '0.00';
-  }
+  // Clear ALL item rows 
+  itemsTableBody.innerHTML = '';
+    
+  // Add just one empty row
+  addItemRow(itemsTableBody);
   
   // Reset logo preview
   const logoPreviewWrapper = document.getElementById('logo-preview-wrapper');
@@ -688,7 +682,7 @@ function populatePreview() {
     subtotal += rowSubtotal;
     taxTotal += rowTaxAmount;
     
-    // Skip empty rows
+    // Skip empty rows - make sure to check ALL criteria
     if (!description && quantity === 0 && rate === 0) return;
     
     const newRow = document.createElement('tr');

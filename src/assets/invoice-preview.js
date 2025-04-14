@@ -9,8 +9,6 @@ export function initInvoicePreview() {
     initDropdownMenu();
     initBackToEditButton();
     initPDFExport();
-    initPrintFunctionality();
-    initQRCodeGeneration();
     initShareInvoice();
     initImageExport();
     initCopyToNewInvoice();
@@ -62,7 +60,7 @@ function initPDFExport() {
   if (previewPdfBtn) {
     previewPdfBtn.addEventListener('click', async function() {
       // Show loading overlay
-      showLoadingOverlay();
+      showLoadingOverlay('Generating PDF...');
       
       try {
         // Make sure necessary libraries are loaded
@@ -105,6 +103,7 @@ async function generatePDF() {
     const total = document.getElementById('preview-invoice-total').textContent;
     const currencySymbol = document.getElementById('preview-currency-symbol').textContent;
     const notes = document.getElementById('preview-notes').textContent;
+    const footerMessage = document.getElementById('preview-footer-message')?.textContent || 'Thank you for your business!';
     
     // Check if logo exists
     const logoElement = document.querySelector('#preview-logo img');
@@ -341,7 +340,14 @@ async function generatePDF() {
     
     // TOTALS SECTION
     // Get the Y position after the table
-    currentY = pdf.previousAutoTable.finalY + 15;
+    
+    // Check if previousAutoTable exists and has finalY
+    if (pdf.previousAutoTable && pdf.previousAutoTable.finalY) {
+      currentY = pdf.previousAutoTable.finalY + 15;
+    } else {
+      // Fallback position if autoTable didn't set finalY
+      currentY += 20; // Add some space after the last element before totals
+    }
     
     // Add totals section (right-aligned)
     const totalsWidth = 75;
@@ -476,12 +482,12 @@ async function generatePDF() {
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
     pdf.setTextColor(107, 114, 128); // Gray-500
-    pdf.text('Thank you for your business!', pageWidth / 2, bottomY - 10, { align: 'center' });
+    pdf.text(footerMessage, pageWidth / 2, bottomY - 10, { align: 'center' });
     
     pdf.setFontSize(8);
     pdf.text('Generated with InvoiceCloud', pageWidth / 2, bottomY - 5, { align: 'center' });
     
-    // Save the PDF
+    // Save the PDF file
     const sanitizedInvoiceNumber = invoiceNumber.replace(/[^a-z0-9]/gi, '-').toLowerCase();
     pdf.save(`invoice-${sanitizedInvoiceNumber}.pdf`);
     
@@ -500,89 +506,6 @@ async function loadPDFLibraries() {
   if (!window.jspdf) {
     window.jspdf = await import('jspdf');
     await import('jspdf-autotable');
-  }
-}
-
-// Initialize print functionality
-function initPrintFunctionality() {
-  const previewPrintBtn = document.getElementById('preview-print-btn');
-  
-  if (previewPrintBtn) {
-    previewPrintBtn.addEventListener('click', function() {
-      window.print();
-    });
-  }
-}
-
-// Initialize QR code generation
-function initQRCodeGeneration() {
-  const generateQrBtn = document.getElementById('generate-qr-btn');
-  const qrCodeContainer = document.getElementById('qr-code-container');
-  const closeQrCodeBtn = document.getElementById('close-qr-code');
-  
-  if (generateQrBtn && qrCodeContainer && closeQrCodeBtn) {
-    generateQrBtn.addEventListener('click', async function() {
-      // Close dropdown
-      document.getElementById('dropdown-menu')?.classList.add('hidden');
-      
-      // Display the QR code modal
-      qrCodeContainer.classList.remove('hidden');
-      
-      // Set invoice number in QR modal
-      const invoiceNumber = document.getElementById('preview-invoice-number').textContent;
-      document.getElementById('qr-invoice-number').textContent = invoiceNumber;
-      
-      try {
-        // Load QR code library if not already loaded
-        if (!window.QRCode) {
-          window.QRCode = await import('qrcode');
-        }
-        
-        // Generate QR code with payment information
-        const currency = document.getElementById('preview-currency-symbol').textContent;
-        const amount = document.getElementById('preview-invoice-total').textContent;
-        const companyName = document.getElementById('preview-sender-name').textContent;
-        
-        const qrData = {
-          invoiceNumber,
-          amount: `${amount} ${currency}`,
-          issuer: companyName,
-          date: document.getElementById('preview-invoice-date').textContent,
-          client: document.getElementById('preview-client-name').textContent
-        };
-        
-        const qrDataString = JSON.stringify(qrData);
-        const qrCodeEl = document.getElementById('qr-code');
-        qrCodeEl.innerHTML = '';
-        
-        // Generate the QR code
-        const canvas = document.createElement('canvas');
-        await QRCode.toCanvas(
-          canvas, 
-          qrDataString, 
-          { 
-            width: 256, 
-            margin: 1, 
-            color: { 
-              dark: '#000', 
-              light: '#fff' 
-            } 
-          }
-        );
-        qrCodeEl.appendChild(canvas);
-      } catch (err) {
-        console.error('Error generating QR code:', err);
-        document.getElementById('qr-code').innerHTML = `
-          <div class="w-64 h-64 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-            <p class="text-gray-500 dark:text-gray-400">QR Code Generation Failed</p>
-          </div>
-        `;
-      }
-    });
-    
-    closeQrCodeBtn.addEventListener('click', function() {
-      qrCodeContainer.classList.add('hidden');
-    });
   }
 }
 
