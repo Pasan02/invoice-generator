@@ -41,7 +41,36 @@ function initCheckboxes() {
         if (checkboxId === 'include-payment') {
           const paymentDetailsSection = document.querySelector('.payment-details-section');
           if (paymentDetailsSection) {
+            // Just change display style but keep the underlying data structure
             paymentDetailsSection.style.display = this.checked ? 'block' : 'none';
+            
+            // If checked, ensure payment details are formatted consistently
+            if (this.checked) {
+              // Make sure the preview will reflect the properly formatted payment details
+              // This ensures consistency between form, preview, and PDF
+              const previewBankNameEl = document.getElementById('preview-bank-name');
+              const previewAccountHolderEl = document.getElementById('preview-account-holder');
+              const previewAccountNumberEl = document.getElementById('preview-account-number');
+              const previewRoutingNumberEl = document.getElementById('preview-routing-number');
+              
+              if (previewBankNameEl && previewAccountHolderEl && 
+                  previewAccountNumberEl && previewRoutingNumberEl) {
+                // Format payment details with proper spacing and styling
+                const bankDetails = document.getElementById('bank-details-section');
+                if (bankDetails) {
+                  // Clear existing content
+                  bankDetails.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Payment Details</h3>
+                    <div class="space-y-2">
+                      <p><span class="font-medium">Bank Name:</span>         <span class="payment-value">${previewBankNameEl.textContent}</span></p>
+                      <p><span class="font-medium">Account Holder:</span>    <span class="payment-value">${previewAccountHolderEl.textContent}</span></p>
+                      <p><span class="font-medium">Account Number:</span>    <span class="payment-value">${previewAccountNumberEl.textContent}</span></p>
+                      <p><span class="font-medium">Routing/SWIFT/IBAN:</span> <span class="payment-value">${previewRoutingNumberEl.textContent}</span></p>
+                    </div>
+                  `;
+                }
+              }
+            }
           }
         }
       });

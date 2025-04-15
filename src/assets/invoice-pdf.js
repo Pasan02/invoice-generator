@@ -103,43 +103,78 @@ async function generateDirectPDF() {
  * Extract all necessary invoice data from the preview DOM
  */
 function extractInvoiceData() {
+  // Helper function to safely get text content from element
+  const safeGetText = (id) => {
+    const element = document.getElementById(id);
+    return element ? element.textContent : '';
+  };
+
+  // Helper function to check if element is displayed
+  const isDisplayed = (id) => {
+    const element = document.getElementById(id);
+    return element ? element.style.display !== 'none' : false;
+  };
+
+  // Check if payment details section is visible
+  const includePayment = isDisplayed('bank-details-section');
+  
+  // Extract payment details from visible elements when the section is displayed
+  let bankName = 'Not specified';
+  let accountHolder = 'Not specified';
+  let accountNumber = 'Not specified';
+  let routingNumber = 'Not specified';
+  
+  if (includePayment) {
+    // Try to find payment details by querying for elements with payment-value class
+    const bankDetailsSection = document.getElementById('bank-details-section');
+    if (bankDetailsSection) {
+      const paymentValues = bankDetailsSection.querySelectorAll('.payment-value');
+      if (paymentValues.length >= 4) {
+        bankName = paymentValues[0].textContent || 'Not specified';
+        accountHolder = paymentValues[1].textContent || 'Not specified';
+        accountNumber = paymentValues[2].textContent || 'Not specified';
+        routingNumber = paymentValues[3].textContent || 'Not specified';
+      }
+    }
+  }
+
   return {
     // Invoice details
-    invoiceNumber: document.getElementById('preview-invoice-number').textContent,
-    invoiceDate: document.getElementById('preview-invoice-date').textContent,
-    dueDate: document.getElementById('preview-due-date').textContent,
+    invoiceNumber: safeGetText('preview-invoice-number'),
+    invoiceDate: safeGetText('preview-invoice-date'),
+    dueDate: safeGetText('preview-due-date'),
     
     // Company details
-    senderName: document.getElementById('preview-sender-name').textContent,
-    senderAddress: document.getElementById('preview-sender-address').textContent,
-    senderContact: document.getElementById('preview-sender-contact').textContent,
+    senderName: safeGetText('preview-sender-name'),
+    senderAddress: safeGetText('preview-sender-address'),
+    senderContact: safeGetText('preview-sender-contact'),
     
     // Client details
-    clientName: document.getElementById('preview-client-name').textContent,
-    clientAddress: document.getElementById('preview-client-address').textContent,
-    clientContact: document.getElementById('preview-client-contact').textContent,
+    clientName: safeGetText('preview-client-name'),
+    clientAddress: safeGetText('preview-client-address'),
+    clientContact: safeGetText('preview-client-contact'),
     
     // Financial details
-    currency: document.getElementById('preview-currency-symbol').textContent,
-    subtotal: document.getElementById('preview-subtotal').textContent,
-    tax: document.getElementById('preview-tax-total').textContent,
-    total: document.getElementById('preview-invoice-total').textContent,
+    currency: safeGetText('preview-currency-symbol'),
+    subtotal: safeGetText('preview-subtotal'),
+    tax: safeGetText('preview-tax-total'),
+    total: safeGetText('preview-invoice-total'),
     
     // Additional information
-    notes: document.getElementById('preview-notes').textContent,
+    notes: safeGetText('preview-notes'),
     
-    // Payment details
-    includePayment: document.getElementById('bank-details-section').style.display !== 'none',
-    bankName: document.getElementById('preview-bank-name').textContent,
-    accountHolder: document.getElementById('preview-account-holder').textContent,
-    accountNumber: document.getElementById('preview-account-number').textContent,
-    routingNumber: document.getElementById('preview-routing-number').textContent,
+    // Payment details - use our directly extracted values
+    includePayment,
+    bankName,
+    accountHolder,
+    accountNumber,
+    routingNumber,
     
     // Line items
     lineItems: getLineItems(),
     
     // Footer text
-    footerMessage: document.getElementById('preview-footer-message')?.textContent || 'We appreciate your business and look forward to serving you again!'
+    footerMessage: safeGetText('preview-footer-message') || 'Thank you for your business!'
   };
 }
 
@@ -250,8 +285,8 @@ function buildPdfContent(pdf, data) {
   y += senderAddressLines.length * 5 + 5;
   pdf.text(data.senderContact, margin, y);
   
-  // Client and Invoice Info (side by side)
-  y += 15; // Reduced spacing
+  // Client and Invoice Info (side by side) - with reduced spacing
+  y += 10; // Reduced from 15 to 10
   const clientSectionY = y;
   
   // Client section (left side)
@@ -260,15 +295,15 @@ function buildPdfContent(pdf, data) {
   pdf.setTextColor(107, 114, 128);
   pdf.text('BILL TO', margin, y);
   
-  // Invoice info box (right side) - aligned with BILL TO text exactly
-  const infoBoxWidth = 80;
-  const infoBoxHeight = 40;
+  // Invoice info box (right side) - more compact with reduced dimensions
+  const infoBoxWidth = 70; // Reduced from 80
+  const infoBoxHeight = 35; // Reduced from 40
   const infoBoxX = pageWidth - margin - infoBoxWidth;
   
-  // Draw invoice info box aligned exactly with BILL TO text
+  // Draw invoice info box aligned with BILL TO text - more compact
   pdf.setFillColor(249, 250, 251);
   pdf.setDrawColor(229, 231, 235);
-  pdf.roundedRect(infoBoxX, clientSectionY - 5, infoBoxWidth, infoBoxHeight, 2, 2, 'FD'); // Shifted up 5mm to align with BILL TO
+  pdf.roundedRect(infoBoxX, clientSectionY - 5, infoBoxWidth, infoBoxHeight, 2, 2, 'FD');
   
   y += 6;
   pdf.setFont('helvetica', 'bold');
@@ -287,31 +322,31 @@ function buildPdfContent(pdf, data) {
   y += clientAddressLines.length * 5 + 5;
   pdf.text(data.clientContact, margin, y);
   
-  // Invoice number - adjusted to match the shifted box
-  let infoY = clientSectionY + 5; // Adjusted for the shifted box
+  // Invoice number - with reduced vertical spacing
+  let infoY = clientSectionY + 4; // Reduced from 5
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(10);
   pdf.setTextColor(107, 114, 128);
-  pdf.text('Invoice #:', infoBoxX + 5, infoY);
+  pdf.text('Invoice #:', infoBoxX + 3, infoY); // Reduced horizontal padding from 5 to 4
   pdf.setTextColor(31, 41, 55);
-  pdf.text(data.invoiceNumber, infoBoxX + infoBoxWidth - 5, infoY, { align: 'right' });
+  pdf.text(data.invoiceNumber, infoBoxX + infoBoxWidth - 3, infoY, { align: 'right' }); // Reduced padding
   
-  // Invoice date
-  infoY += 10;
+  // Invoice date - with reduced vertical spacing
+  infoY += 9; // Reduced from 10
   pdf.setTextColor(107, 114, 128);
-  pdf.text('Date:', infoBoxX + 5, infoY);
+  pdf.text('Date:', infoBoxX + 3, infoY);
   pdf.setTextColor(31, 41, 55);
-  pdf.text(data.invoiceDate, infoBoxX + infoBoxWidth - 5, infoY, { align: 'right' });
+  pdf.text(data.invoiceDate, infoBoxX + infoBoxWidth - 3, infoY, { align: 'right' });
   
-  // Due date
-  infoY += 10;
+  // Due date - with reduced vertical spacing
+  infoY += 9; // Reduced from 10
   pdf.setTextColor(107, 114, 128);
-  pdf.text('Due Date:', infoBoxX + 5, infoY);
+  pdf.text('Due Date:', infoBoxX + 3, infoY);
   pdf.setTextColor(31, 41, 55);
-  pdf.text(data.dueDate, infoBoxX + infoBoxWidth - 5, infoY, { align: 'right' });
+  pdf.text(data.dueDate, infoBoxX + infoBoxWidth - 3, infoY, { align: 'right' });
   
-  // Reset Y position to continue after both sections
-  y = Math.max(y, clientSectionY + infoBoxHeight) + 15;
+  // Reset Y position with less spacing after both sections
+  y = Math.max(y, clientSectionY + infoBoxHeight) + 10; // Reduced from 15 to 10
   
   // Line items table
   pdf.setLineWidth(0.1);
@@ -413,10 +448,10 @@ function buildPdfContent(pdf, data) {
   pdf.setTextColor(79, 70, 229);
   pdf.text(`${data.currency}${data.total}`, pageWidth - margin, y, { align: 'right' });
   
-  // Notes section as plain text - always add before payment details
+  // Notes section as plain text - only add if notes exist and are not empty
   y += 20;
   
-  if (data.notes && data.notes !== 'No notes provided.') {
+  if (data.notes && data.notes.trim() !== '') {
     // Notes title
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(11);
@@ -436,56 +471,55 @@ function buildPdfContent(pdf, data) {
     y += notesLines.length * 5 + 10;
   }
   
-  // Payment details section with reduced spacing - comes after notes section
+  // Payment details section with simpler, more natural spacing
   if (data.includePayment) {
-    // Title for payment details
+    // Title for payment details - match preview styling
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(11);
-    pdf.setTextColor(31, 41, 55);
+    pdf.setTextColor(31, 41, 55); // Match preview - Gray-900
     pdf.text('Payment Details', margin, y);
     
-    y += 8; // Reduced spacing
+    y += 10; // Match spacing from preview
     
-    // Create a 2x2 grid for payment details
-    const halfWidth = contentWidth / 2 - 5;
-    
-    // Labels - small, light text
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
-    pdf.setTextColor(107, 114, 128);
-    
-    // First row - labels
-    pdf.text('Bank Name', margin, y);
-    pdf.text('Account Holder', margin + halfWidth + 10, y);
-    
-    y += 4; // Reduced spacing
-    
-    // First row - values
-    pdf.setFont('helvetica', 'normal');
+    // Format payment details matching preview
     pdf.setFontSize(10);
+    
+    // Bank Name
+    pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(31, 41, 55);
-    pdf.text(data.bankName, margin, y);
-    pdf.text(data.accountHolder, margin + halfWidth + 10, y);
-    
-    y += 8; // Reduced spacing
-    
-    // Second row - labels
+    pdf.text('Bank Name:', margin, y);
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(8);
-    pdf.setTextColor(107, 114, 128);
-    pdf.text('Account Number', margin, y);
-    pdf.text('Routing/SWIFT/IBAN', margin + halfWidth + 10, y);
-    
-    y += 4; // Reduced spacing
-    
-    // Second row - values
-    pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(10);
     pdf.setTextColor(31, 41, 55);
-    pdf.text(data.accountNumber, margin, y);
-    pdf.text(data.routingNumber, margin + halfWidth + 10, y);
+    pdf.text(data.bankName || 'Not specified', margin + 22, y); // Use consistent offset
+    y += 6;
     
-    y += 10; // Reduced spacing
+    // Account Holder
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text('Account Holder:', margin, y);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text(data.accountHolder || 'Not specified', margin + 29, y); // Use consistent offset
+    y += 6;
+    
+    // Account Number
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text('Account Number:', margin, y);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text(data.accountNumber || 'Not specified', margin + 31, y); // Use consistent offset
+    y += 6;
+    
+    // Routing/SWIFT/IBAN
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text('Routing/SWIFT/IBAN:', margin, y);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(31, 41, 55);
+    pdf.text(data.routingNumber || 'Not specified', margin + 38, y); // Use consistent offset
+    
+    y += 10; // Space after payment details section
   }
   
   // Custom thank you message at the bottom - positioned 5mm above the margin

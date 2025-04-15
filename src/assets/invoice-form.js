@@ -3,6 +3,10 @@
  * Manages form interactions, tab navigation, calculations, and validation
  */
 
+// Add import at the top of the file
+import { initProgressBar } from './invoice-progress.js';
+import { initMobileExperience } from './mobile-experience.js';
+
 // Initialize the invoice form when the document is ready
 export function initInvoiceForm() {
   document.addEventListener('DOMContentLoaded', function() {
@@ -14,6 +18,8 @@ export function initInvoiceForm() {
     initDateDefaults();
     initSaveLoadDraft();
     initPreviewHandler();
+    initProgressBar(); // Initialize progress bar functionality
+    initMobileExperience(); // Add mobile-specific enhancements
     
     // Expose loadFormData globally for the preview functionality
     window.loadFormData = loadFormData;
@@ -49,6 +55,12 @@ function initTabNavigation() {
       activeLink.classList.add('active', 'border-indigo-500', 'dark:border-indigo-400', 'text-indigo-600', 'dark:text-indigo-400');
       activeLink.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400');
     }
+    
+    // Dispatch event for progress bar update
+    const progressEvent = new CustomEvent('set-active-tab', {
+      detail: { tabId }
+    });
+    document.dispatchEvent(progressEvent);
   }
   
   // Set up tab navigation clicks
@@ -73,6 +85,9 @@ function initTabNavigation() {
       setActiveTab(button.dataset.prev);
     });
   });
+  
+  // Make setActiveTab available globally for form validation
+  window.setActiveTab = setActiveTab;
 }
 
 // Initialize logo upload functionality
@@ -711,23 +726,53 @@ function populatePreview() {
   document.getElementById('preview-invoice-total').textContent = total.toFixed(2);
   
   // Notes and terms
-  document.getElementById('preview-notes').textContent = document.getElementById('notes').value || 'No notes provided.';
+  const notes = document.getElementById('notes').value;
+  const previewNotes = document.getElementById('preview-notes');
+  const notesSection = document.getElementById('notes-section');
+
+  if (notes && notes.trim() !== '') {
+    // Only show notes section if there are actual notes
+    previewNotes.textContent = notes;
+    if (notesSection) {
+      notesSection.style.display = 'block';
+    }
+  } else {
+    previewNotes.textContent = '';
+    if (notesSection) {
+      notesSection.style.display = 'none';
+    }
+  }
   
-  // Payment details
+  // Payment details with proper styling and spacing
   const bankName = document.getElementById('bank-name').value;
   const accountHolder = document.getElementById('account-holder').value;
   const accountNumber = document.getElementById('account-number').value;
   const routingNumber = document.getElementById('routing-number').value;
-  
+
+  // Update hidden elements used for data extraction
   document.getElementById('preview-bank-name').textContent = bankName || 'Not specified';
   document.getElementById('preview-account-holder').textContent = accountHolder || 'Not specified';
   document.getElementById('preview-account-number').textContent = accountNumber || 'Not specified';
   document.getElementById('preview-routing-number').textContent = routingNumber || 'Not specified';
-  
-  // Show/hide payment details based on toggle
+
+  // Show/hide and format payment details based on toggle
   const includePayment = document.getElementById('include-payment').checked;
-  document.getElementById('bank-details-section').style.display = includePayment ? 'block' : 'none';
-  
+  const bankDetailsSection = document.getElementById('bank-details-section');
+  bankDetailsSection.style.display = includePayment ? 'block' : 'none';
+
+  // Format the displayed payment details with proper spacing and styling
+  if (includePayment) {
+    bankDetailsSection.innerHTML = `
+      <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Payment Details</h3>
+      <div class="space-y-2">
+        <p><span class="font-medium">Bank Name:</span>         <span class="payment-value">${bankName || 'Not specified'}</span></p>
+        <p><span class="font-medium">Account Holder:</span>    <span class="payment-value">${accountHolder || 'Not specified'}</span></p>
+        <p><span class="font-medium">Account Number:</span>    <span class="payment-value">${accountNumber || 'Not specified'}</span></p>
+        <p><span class="font-medium">Routing/SWIFT/IBAN:</span> <span class="payment-value">${routingNumber || 'Not specified'}</span></p>
+      </div>
+    `;
+  }
+
   // Logo 
   const previewLogo = document.getElementById('preview-logo');
   previewLogo.innerHTML = '';

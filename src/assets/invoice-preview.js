@@ -13,6 +13,7 @@ export function initInvoicePreview() {
     initImageExport();
     initCopyToNewInvoice();
     initStatusChange();
+    initMobilePreview();
   });
 }
 
@@ -389,8 +390,8 @@ async function generatePDF() {
     // NOTES SECTION
     currentY += 25;
     
-    // Add notes if they exist
-    if (notes && notes !== 'No notes provided.') {
+    // Add notes only if they exist and are not empty
+    if (notes && notes.trim() !== '') {
       pdf.setFillColor(249, 250, 251); // Gray-50 - matches the preview background
       pdf.setDrawColor(229, 231, 235); // Gray-200
       
@@ -433,46 +434,42 @@ async function generatePDF() {
       
       currentY += 10;
       
-      // Create a 2x2 grid for payment details
-      const halfWidth = contentWidth / 2 - 5;
-      
-      // Labels - small, light text
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8);
-      pdf.setTextColor(107, 114, 128); // Gray-500
-      
-      // First row - labels
-      pdf.text('Bank Name', margin, currentY);
-      pdf.text('Account Holder', margin + halfWidth + 10, currentY);
-      
-      currentY += 5;
-      
-      // First row - values
-      pdf.setFont('helvetica', 'normal');
+      // Format payment details with uniform spacing between label and value
+      // For labels, use bold font
       pdf.setFontSize(10);
+      
+      // Bank Name
+      pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(31, 41, 55); // Gray-800
-      pdf.text(bankName, margin, currentY);
-      pdf.text(accountHolder, margin + halfWidth + 10, currentY);
-      
-      currentY += 12;
-      
-      // Second row - labels
+      pdf.text('Bank Name:', margin, currentY);
       pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8);
-      pdf.setTextColor(107, 114, 128); // Gray-500
-      pdf.text('Account Number', margin, currentY);
-      pdf.text('Routing/SWIFT/IBAN', margin + halfWidth + 10, currentY);
+      pdf.text(bankName, margin + 40, currentY);
+      currentY += 6;
       
-      currentY += 5;
-      
-      // Second row - values
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(10);
+      // Account Holder
+      pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(31, 41, 55); // Gray-800
-      pdf.text(accountNumber, margin, currentY);
-      pdf.text(routingNumber, margin + halfWidth + 10, currentY);
+      pdf.text('Account Holder:', margin, currentY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(accountHolder, margin + 40, currentY);
+      currentY += 6;
       
-      currentY += 15;
+      // Account Number
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(31, 41, 55); // Gray-800
+      pdf.text('Account Number:', margin, currentY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(accountNumber, margin + 40, currentY);
+      currentY += 6;
+      
+      // Routing/SWIFT/IBAN
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(31, 41, 55); // Gray-800
+      pdf.text('Routing/SWIFT/IBAN:', margin, currentY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(routingNumber, margin + 40, currentY);
+      
+      currentY += 15; // Space after payment details section
     }
     
     // THANK YOU MESSAGE
@@ -745,6 +742,43 @@ function initStatusChange() {
         mobileStatusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
       }
     });
+  }
+}
+
+// Initialize mobile preview functionality
+function initMobilePreview() {
+  const toggleButton = document.getElementById('toggle-mobile-preview');
+  const previewContent = document.querySelector('.invoice-main-preview');
+  
+  if (toggleButton && previewContent) {
+    toggleButton.addEventListener('click', function() {
+      previewContent.classList.toggle('hidden');
+      
+      // Update toggle text and icon
+      const toggleText = toggleButton.querySelector('.toggle-text');
+      const toggleIcon = toggleButton.querySelector('.toggle-icon');
+      
+      if (previewContent.classList.contains('hidden')) {
+        toggleText.textContent = 'Show Details';
+        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />';
+      } else {
+        toggleText.textContent = 'Hide Details';
+        toggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
+      }
+    });
+    
+    // Update mobile summary info
+    function updateMobileSummary() {
+      const clientName = document.getElementById('preview-client-name')?.textContent;
+      const total = document.getElementById('preview-invoice-total')?.textContent;
+      const currency = document.getElementById('preview-currency-symbol')?.textContent;
+      
+      document.getElementById('mobile-preview-client').textContent = clientName || 'Invoice';
+      document.getElementById('mobile-preview-total').textContent = currency + total || '';
+    }
+    
+    // Call updateMobileSummary when preview is updated
+    // Add this to your populatePreview function or observer pattern
   }
 }
 

@@ -1,0 +1,122 @@
+/* Mobile-specific styles for invoice form */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  .form-input, .form-select, .form-textarea, button, .btn-primary, .btn-secondary {
+    min-height: 44px;
+  }
+  
+  /* Make radio buttons and checkboxes easier to tap */
+  input[type="radio"], input[type="checkbox"] {
+    min-width: 20px;
+    min-height: 20px;
+  }
+  
+  /* Enhance readability */
+  label, .text-sm {
+    font-size: 1rem; /* 16px - prevents iOS zoom on focus */
+  }
+  
+  /* Add visual feedback on mobile taps */
+  .tab-link:active, button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+  
+  /* Prevent zoom on iOS */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Fixed action buttons at bottom */
+  .sticky-footer {
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  /* Animate tab transitions for better UX */
+  .tab-pane.animate-fade-in {
+    animation-duration: 0.3s;
+  }
+  
+  /* Add pull-to-refresh visual indicator */
+  .tab-content {
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Fix double-tap issues on iOS */
+  * {
+    touch-action: manipulation;
+  }
+  
+  /* Hide scrollbars but maintain functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Support for devices with notches and rounded corners */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  }
+  
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0.5rem);
+  }
+  
+  /* Enhanced mobile scrolling behavior */
+  .momentum-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Better tap target spacing */
+  .button-group button {
+    margin: 0 0.25rem;
+  }
+  
+  /* Prevent text from being too small */
+  .text-xs {
+    font-size: 0.875rem !important;
+  }
+  
+  /* Improve touch feedback for all interactive elements */
+  a, button, .interactive {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  }
+  
+  a:active, button:active, .interactive:active {
+    opacity: 0.7;
+  }
+}
+
+/* Add support for foldable devices and new form factors */
+@media (max-width: 280px) {
+  /* Very small screens (Galaxy Fold etc) */
+  .container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  h1, h2, h3 {
+    font-size: 90%;
+  }
+}
+
+/* Media queries for orientation changes */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Optimize controls in landscape mode */
+  .form-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .form-group {
+    width: 50%;
+    padding: 0 0.25rem;
+  }
+}
