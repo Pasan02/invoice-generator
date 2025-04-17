@@ -300,22 +300,34 @@ function initSaveLoadFunctionality() {
 
 // Loading/toast utility functions
 function showLoadingOverlay(message = 'Loading...') {
-  const overlay = document.getElementById('loading-overlay');
-  const messageElement = document.getElementById('loading-message');
+  // Remove any existing overlay first
+  hideLoadingOverlay();
   
-  if (messageElement) {
-    messageElement.textContent = message;
-  }
+  // Create or show the overlay with the specified message
+  const overlay = document.getElementById('loading-overlay') || document.createElement('div');
+  overlay.id = 'loading-overlay';
+  overlay.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50';
   
-  if (overlay) {
-    overlay.classList.remove('hidden');
+  // Set the message content
+  overlay.innerHTML = `
+    <div class="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-xs">
+      <p class="text-center text-gray-700 dark:text-gray-300" id="loading-message">${message}</p>
+      <div class="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+        <div class="bg-indigo-600 h-2.5 rounded-full w-3/4 animate-pulse"></div>
+      </div>
+    </div>
+  `;
+  
+  // Append to body if not already present
+  if (!document.getElementById('loading-overlay')) {
+    document.body.appendChild(overlay);
   }
 }
 
 function hideLoadingOverlay() {
   const overlay = document.getElementById('loading-overlay');
   if (overlay) {
-    overlay.classList.add('hidden');
+    overlay.remove();
   }
 }
 

@@ -359,21 +359,70 @@ function initSaveLoadDraft() {
   
   if (saveDraftBtn) {
     saveDraftBtn.addEventListener('click', function() {
-      const formData = collectFormData();
-      localStorage.setItem('invoice_draft', JSON.stringify(formData));
-      alert('Invoice draft saved successfully');
+      try {
+        const formData = collectFormData();
+        
+        // Add timestamp to track when the draft was saved
+        formData.meta = {
+          savedAt: new Date().toISOString(),
+          version: '1.0'
+        };
+        
+        localStorage.setItem('invoice_draft', JSON.stringify(formData));
+        
+        // Use toast notification if available, otherwise fallback to alert
+        if (window.showToast) {
+          window.showToast('Invoice draft saved successfully', 'success');
+        } else {
+          alert('Invoice draft saved successfully');
+        }
+      } catch (error) {
+        console.error('Error saving draft:', error);
+        alert('Failed to save draft: ' + error.message);
+      }
     });
   }
   
   if (loadDraftBtn) {
     loadDraftBtn.addEventListener('click', function() {
-      const savedData = localStorage.getItem('invoice_draft');
-      if (savedData) {
-        const formData = JSON.parse(savedData);
-        loadFormData(formData);
-        alert('Draft loaded successfully');
-      } else {
-        alert('No saved draft found');
+      try {
+        const savedData = localStorage.getItem('invoice_draft');
+        if (savedData) {
+          const formData = JSON.parse(savedData);
+          
+          // Show confirmation if there's unsaved data
+          const hasCurrentData = !!document.getElementById('sender-name')?.value || 
+                                !!document.getElementById('client-name')?.value;
+          
+          if (hasCurrentData && 
+              !confirm('Loading a draft will replace your current form data. Continue?')) {
+            return;
+          }
+          
+          loadFormData(formData);
+          
+          // Display when the draft was saved
+          let message = 'Draft loaded successfully';
+          if (formData.meta && formData.meta.savedAt) {
+            const savedDate = new Date(formData.meta.savedAt);
+            message += ' (saved ' + savedDate.toLocaleString() + ')';
+          }
+          
+          if (window.showToast) {
+            window.showToast(message, 'success');
+          } else {
+            alert(message);
+          }
+        } else {
+          if (window.showToast) {
+            window.showToast('No saved draft found', 'info');
+          } else {
+            alert('No saved draft found');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading draft:', error);
+        alert('Failed to load draft: ' + error.message);
       }
     });
   }
@@ -382,9 +431,61 @@ function initSaveLoadDraft() {
     resetFormBtn.addEventListener('click', function() {
       if (confirm('Are you sure you want to clear the entire form? This cannot be undone.')) {
         resetForm();
+        
+        if (window.showToast) {
+          window.showToast('Form reset successfully', 'info');
+        }
       }
     });
   }
+  
+  // Auto-save draft every 2 minutes if there's content
+  const autoSaveInterval = 2 * 60 * 1000; // 2 minutes
+  setInterval(() => {
+    // Only auto-save if there's actual content to save
+    if (document.getElementById('sender-name')?.value || 
+        document.getElementById('client-name')?.value) {
+      try {
+        const formData = collectFormData();
+        formData.meta = {
+          savedAt: new Date().toISOString(),
+          version: '1.0',
+          autoSaved: true
+        };
+        localStorage.setItem('invoice_draft_auto', JSON.stringify(formData));
+        console.log('Invoice form auto-saved at', new Date().toLocaleString());
+      } catch (error) {
+        console.error('Error auto-saving draft:', error);
+      }
+    }
+  }, autoSaveInterval);
+  
+  // Check for auto-saved draft on page load
+  setTimeout(() => {
+    const autoSavedData = localStorage.getItem('invoice_draft_auto');
+    const normalSavedData = localStorage.getItem('invoice_draft');
+    
+    // Only offer to restore if there's no content in the form and there is auto-saved content
+    const hasCurrentData = !!document.getElementById('sender-name')?.value || 
+                          !!document.getElementById('client-name')?.value;
+    
+    if (!hasCurrentData && autoSavedData && (!normalSavedData || 
+        (JSON.parse(autoSavedData).meta?.savedAt > JSON.parse(normalSavedData).meta?.savedAt))) {
+      try {
+        const formData = JSON.parse(autoSavedData);
+        const savedDate = new Date(formData.meta.savedAt);
+        
+        if (confirm(`Unsaved work from ${savedDate.toLocaleString()} was found. Would you like to restore it?`)) {
+          loadFormData(formData);
+          if (window.showToast) {
+            window.showToast('Auto-saved work restored', 'info');
+          }
+        }
+      } catch (error) {
+        console.error('Error handling auto-saved draft:', error);
+      }
+    }
+  }, 1000);
 }
 
 // Initialize preview handler
@@ -637,34 +738,55 @@ function populatePreview() {
   }
   
   // Populate sender information
-  document.getElementById('preview-sender-name').textContent = document.getElementById('sender-name').value;
+  const previewSenderName = document.getElementById('preview-sender-name');
+  if (previewSenderName) {
+    previewSenderName.textContent = document.getElementById('sender-name')?.value || '';
+  }
   
-  const senderAddress = document.getElementById('sender-address').value;
-  document.getElementById('preview-sender-address').textContent = senderAddress;
+  const senderAddress = document.getElementById('sender-address')?.value || '';
+  const previewSenderAddress = document.getElementById('preview-sender-address');
+  if (previewSenderAddress) {
+    previewSenderAddress.textContent = senderAddress;
+  }
   
-  const senderEmail = document.getElementById('sender-email').value;
-  const senderPhone = document.getElementById('sender-phone').value;
+  const senderEmail = document.getElementById('sender-email')?.value || '';
+  const senderPhone = document.getElementById('sender-phone')?.value || '';
   const senderContact = [];
   if (senderEmail) senderContact.push(senderEmail);
   if (senderPhone) senderContact.push(senderPhone);
-  document.getElementById('preview-sender-contact').textContent = senderContact.join(' | ');
+  const previewSenderContact = document.getElementById('preview-sender-contact');
+  if (previewSenderContact) {
+    previewSenderContact.textContent = senderContact.join(' | ');
+  }
   
   // Populate client information
-  document.getElementById('preview-client-name').textContent = document.getElementById('client-name').value;
+  const previewClientName = document.getElementById('preview-client-name');
+  if (previewClientName) {
+    previewClientName.textContent = document.getElementById('client-name')?.value || '';
+  }
   
-  const clientAddress = document.getElementById('client-address').value;
-  document.getElementById('preview-client-address').textContent = clientAddress;
+  const clientAddress = document.getElementById('client-address')?.value || '';
+  const previewClientAddress = document.getElementById('preview-client-address');
+  if (previewClientAddress) {
+    previewClientAddress.textContent = clientAddress;
+  }
   
-  const clientEmail = document.getElementById('client-email').value;
-  const clientPhone = document.getElementById('client-phone').value;
+  const clientEmail = document.getElementById('client-email')?.value || '';
+  const clientPhone = document.getElementById('client-phone')?.value || '';
   const clientContact = [];
   if (clientEmail) clientContact.push(clientEmail);
   if (clientPhone) clientContact.push(clientPhone);
-  document.getElementById('preview-client-contact').textContent = clientContact.join(' | ');
+  const previewClientContact = document.getElementById('preview-client-contact');
+  if (previewClientContact) {
+    previewClientContact.textContent = clientContact.join(' | ');
+  }
   
   // Populate invoice information
-  const invoiceNumber = document.getElementById('invoice-number').value || 'Not specified';
-  document.getElementById('preview-invoice-number').textContent = invoiceNumber;
+  const invoiceNumber = document.getElementById('invoice-number')?.value || 'Not specified';
+  const previewInvoiceNumber = document.getElementById('preview-invoice-number');
+  if (previewInvoiceNumber) {
+    previewInvoiceNumber.textContent = invoiceNumber;
+  }
   
   // Format dates
   const formatDate = (dateString) => {
@@ -673,108 +795,164 @@ function populatePreview() {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
   
-  document.getElementById('preview-invoice-date').textContent = formatDate(document.getElementById('invoice-date').value);
-  document.getElementById('preview-due-date').textContent = formatDate(document.getElementById('due-date').value);
+  const previewInvoiceDate = document.getElementById('preview-invoice-date');
+  if (previewInvoiceDate) {
+    previewInvoiceDate.textContent = formatDate(document.getElementById('invoice-date')?.value);
+  }
+  
+  const previewDueDate = document.getElementById('preview-due-date');
+  if (previewDueDate) {
+    previewDueDate.textContent = formatDate(document.getElementById('due-date')?.value);
+  }
   
   // Populate line items
   const previewLineItems = document.getElementById('preview-line-items');
+  if (!previewLineItems) return; // Exit if preview elements don't exist
+  
   previewLineItems.innerHTML = '';
   
   let subtotal = 0;
   let taxTotal = 0;
   
-  const lineItems = document.getElementById('items-table-body').querySelectorAll('tr');
-  lineItems.forEach(row => {
-    const description = row.querySelector('.item-description').value;
-    const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-    const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
-    const taxPercent = parseFloat(row.querySelector('.item-tax').value) || 0;
-    
-    const rowSubtotal = quantity * rate;
-    const rowTaxAmount = rowSubtotal * (taxPercent / 100);
-    const rowTotal = rowSubtotal + rowTaxAmount;
-    
-    subtotal += rowSubtotal;
-    taxTotal += rowTaxAmount;
-    
-    // Skip empty rows - make sure to check ALL criteria
-    if (!description && quantity === 0 && rate === 0) return;
-    
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-      <td class="px-6 py-4 whitespace-normal">
-        <div class="text-gray-900 dark:text-white">${description}</div>
-      </td>
-      <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${quantity}</td>
-      <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${currencySymbol}${rate.toFixed(2)}</td>
-      <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${taxPercent}%</td>
-      <td class="px-6 py-4 text-right text-gray-900 dark:text-white font-medium">${currencySymbol}${rowTotal.toFixed(2)}</td>
-    `;
-    previewLineItems.appendChild(newRow);
-  });
+  const itemsTableBody = document.getElementById('items-table-body');
+  if (itemsTableBody) {
+    const lineItems = itemsTableBody.querySelectorAll('tr');
+    lineItems.forEach(row => {
+      const description = row.querySelector('.item-description')?.value || '';
+      const quantity = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+      const rate = parseFloat(row.querySelector('.item-rate')?.value) || 0;
+      const taxPercent = parseFloat(row.querySelector('.item-tax')?.value) || 0;
+      
+      const rowSubtotal = quantity * rate;
+      const rowTaxAmount = rowSubtotal * (taxPercent / 100);
+      const rowTotal = rowSubtotal + rowTaxAmount;
+      
+      subtotal += rowSubtotal;
+      taxTotal += rowTaxAmount;
+      
+      // Skip empty rows - make sure to check ALL criteria
+      if (!description && quantity === 0 && rate === 0) return;
+      
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td class="px-6 py-4 whitespace-normal">
+          <div class="text-gray-900 dark:text-white">${description}</div>
+        </td>
+        <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${quantity}</td>
+        <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${currencySymbol}${rate.toFixed(2)}</td>
+        <td class="px-6 py-4 text-right text-gray-900 dark:text-white">${taxPercent}%</td>
+        <td class="px-6 py-4 text-right text-gray-900 dark:text-white font-medium">${currencySymbol}${rowTotal.toFixed(2)}</td>
+      `;
+      previewLineItems.appendChild(newRow);
+    });
+  }
   
   const total = subtotal + taxTotal;
   
-  // Set currency symbols
-  document.getElementById('preview-currency-symbol').textContent = currencySymbol;
-  document.getElementById('preview-currency-symbol-tax').textContent = currencySymbol;
-  document.getElementById('preview-currency-symbol-total').textContent = currencySymbol;
+  // Set currency symbols - Add null checks to prevent "Cannot set properties of null" error
+  const previewCurrencySymbol = document.getElementById('preview-currency-symbol');
+  if (previewCurrencySymbol) {
+    previewCurrencySymbol.textContent = currencySymbol;
+  }
+  
+  const previewCurrencySymbolTax = document.getElementById('preview-currency-symbol-tax');
+  if (previewCurrencySymbolTax) {
+    previewCurrencySymbolTax.textContent = currencySymbol;
+  }
+  
+  const previewCurrencySymbolTotal = document.getElementById('preview-currency-symbol-total');
+  if (previewCurrencySymbolTotal) {
+    previewCurrencySymbolTotal.textContent = currencySymbol;
+  }
   
   // Update totals
-  document.getElementById('preview-subtotal').textContent = subtotal.toFixed(2);
-  document.getElementById('preview-tax-total').textContent = taxTotal.toFixed(2);
-  document.getElementById('preview-invoice-total').textContent = total.toFixed(2);
+  const previewSubtotal = document.getElementById('preview-subtotal');
+  if (previewSubtotal) {
+    previewSubtotal.textContent = subtotal.toFixed(2);
+  }
+  
+  const previewTaxTotal = document.getElementById('preview-tax-total');
+  if (previewTaxTotal) {
+    previewTaxTotal.textContent = taxTotal.toFixed(2);
+  }
+  
+  const previewInvoiceTotal = document.getElementById('preview-invoice-total');
+  if (previewInvoiceTotal) {
+    previewInvoiceTotal.textContent = total.toFixed(2);
+  }
   
   // Notes and terms
-  const notes = document.getElementById('notes').value;
+  const notes = document.getElementById('notes')?.value || '';
   const previewNotes = document.getElementById('preview-notes');
   const notesSection = document.getElementById('notes-section');
 
-  if (notes && notes.trim() !== '') {
-    // Only show notes section if there are actual notes
-    previewNotes.textContent = notes;
-    if (notesSection) {
-      notesSection.style.display = 'block';
-    }
-  } else {
-    previewNotes.textContent = '';
-    if (notesSection) {
-      notesSection.style.display = 'none';
+  if (previewNotes) {
+    if (notes && notes.trim() !== '') {
+      // Only show notes section if there are actual notes
+      previewNotes.textContent = notes;
+      if (notesSection) {
+        notesSection.style.display = 'block';
+      }
+    } else {
+      previewNotes.textContent = '';
+      if (notesSection) {
+        notesSection.style.display = 'none';
+      }
     }
   }
   
   // Payment details with proper styling and spacing
-  const bankName = document.getElementById('bank-name').value;
-  const accountHolder = document.getElementById('account-holder').value;
-  const accountNumber = document.getElementById('account-number').value;
-  const routingNumber = document.getElementById('routing-number').value;
+  const bankName = document.getElementById('bank-name')?.value || '';
+  const accountHolder = document.getElementById('account-holder')?.value || '';
+  const accountNumber = document.getElementById('account-number')?.value || '';
+  const routingNumber = document.getElementById('routing-number')?.value || '';
 
   // Update hidden elements used for data extraction
-  document.getElementById('preview-bank-name').textContent = bankName || 'Not specified';
-  document.getElementById('preview-account-holder').textContent = accountHolder || 'Not specified';
-  document.getElementById('preview-account-number').textContent = accountNumber || 'Not specified';
-  document.getElementById('preview-routing-number').textContent = routingNumber || 'Not specified';
+  const previewBankName = document.getElementById('preview-bank-name');
+  if (previewBankName) {
+    previewBankName.textContent = bankName || 'Not specified';
+  }
+  
+  const previewAccountHolder = document.getElementById('preview-account-holder');
+  if (previewAccountHolder) {
+    previewAccountHolder.textContent = accountHolder || 'Not specified';
+  }
+  
+  const previewAccountNumber = document.getElementById('preview-account-number');
+  if (previewAccountNumber) {
+    previewAccountNumber.textContent = accountNumber || 'Not specified';
+  }
+  
+  const previewRoutingNumber = document.getElementById('preview-routing-number');
+  if (previewRoutingNumber) {
+    previewRoutingNumber.textContent = routingNumber || 'Not specified';
+  }
 
   // Show/hide and format payment details based on toggle
-  const includePayment = document.getElementById('include-payment').checked;
+  const includePayment = document.getElementById('include-payment')?.checked || false;
   const bankDetailsSection = document.getElementById('bank-details-section');
-  bankDetailsSection.style.display = includePayment ? 'block' : 'none';
+  
+  if (bankDetailsSection) {
+    bankDetailsSection.style.display = includePayment ? 'block' : 'none';
 
-  // Format the displayed payment details with proper spacing and styling
-  if (includePayment) {
-    bankDetailsSection.innerHTML = `
-      <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Payment Details</h3>
-      <div class="space-y-2">
-        <p><span class="font-medium">Bank Name:</span>         <span class="payment-value">${bankName || 'Not specified'}</span></p>
-        <p><span class="font-medium">Account Holder:</span>    <span class="payment-value">${accountHolder || 'Not specified'}</span></p>
-        <p><span class="font-medium">Account Number:</span>    <span class="payment-value">${accountNumber || 'Not specified'}</span></p>
-        <p><span class="font-medium">Routing/SWIFT/IBAN:</span> <span class="payment-value">${routingNumber || 'Not specified'}</span></p>
-      </div>
-    `;
+    // Format the displayed payment details with proper spacing and styling
+    if (includePayment) {
+      bankDetailsSection.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Payment Details</h3>
+        <div class="space-y-2">
+          <p><span class="font-medium">Bank Name:</span>         <span class="payment-value">${bankName || 'Not specified'}</span></p>
+          <p><span class="font-medium">Account Holder:</span>    <span class="payment-value">${accountHolder || 'Not specified'}</span></p>
+          <p><span class="font-medium">Account Number:</span>    <span class="payment-value">${accountNumber || 'Not specified'}</span></p>
+          <p><span class="font-medium">Routing/SWIFT/IBAN:</span> <span class="payment-value">${routingNumber || 'Not specified'}</span></p>
+        </div>
+      `;
+    }
   }
 
   // Logo 
   const previewLogo = document.getElementById('preview-logo');
+  if (!previewLogo) return;
+  
   previewLogo.innerHTML = '';
   
   const logoPreview = document.getElementById('logo-preview');
@@ -786,7 +964,7 @@ function populatePreview() {
     previewLogo.appendChild(img);
   } else {
     // If no logo, display the company name in a stylish way
-    const companyName = document.getElementById('sender-name').value;
+    const companyName = document.getElementById('sender-name')?.value || '';
     if (companyName) {
       const nameEl = document.createElement('div');
       nameEl.textContent = companyName;

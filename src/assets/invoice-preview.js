@@ -500,10 +500,32 @@ async function generatePDF() {
 // Load PDF libraries if they're not already loaded
 async function loadPDFLibraries() {
   // Check if libraries are loaded
-  if (!window.jspdf) {
-    window.jspdf = await import('jspdf');
-    await import('jspdf-autotable');
+  if (window.jspdf) {
+    return;
   }
+  
+  // Set a timeout for library loading
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('PDF library loading timed out. Please check your internet connection.'));
+    }, 10000); // 10 second timeout
+    
+    // Use dynamic import with error handling
+    Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable')
+    ])
+    .then(([jsPdfModule]) => {
+      clearTimeout(timeout);
+      window.jspdf = jsPdfModule;
+      setTimeout(resolve, 100); // Small delay to ensure everything is initialized
+    })
+    .catch(err => {
+      clearTimeout(timeout);
+      console.error('Error loading PDF libraries:', err);
+      reject(new Error('Failed to load PDF libraries. Please try again.'));
+    });
+  });
 }
 
 // Initialize share invoice functionality

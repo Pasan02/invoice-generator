@@ -24,7 +24,7 @@ export function initPDFFunctionality() {
         try {
           window.showLoadingOverlay('Generating PDF...');
           
-          // Make sure jsPDF is loaded
+          // Make sure jsPDF is loaded with a timeout to handle slow connections
           await ensureLibrariesLoaded();
           
           // Generate the PDF using our direct method
@@ -56,21 +56,30 @@ async function ensureLibrariesLoaded() {
   }
   
   return new Promise((resolve, reject) => {
+    // Set a timeout for library loading
+    const timeout = setTimeout(() => {
+      reject(new Error('PDF library loading timed out. Please check your internet connection and try again.'));
+    }, 10000); // 10 second timeout
+    
     // Load jsPDF
     const jspdfScript = document.createElement('script');
     jspdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     jspdfScript.async = true;
     
     jspdfScript.onload = function() {
+      clearTimeout(timeout);
       if (window.jspdf && window.jspdf.jsPDF) {
         window.jsPDF = window.jspdf.jsPDF;
+        // Give extra time for initialization
+        setTimeout(resolve, 100);
+      } else {
+        reject(new Error('jsPDF loaded but API not available'));
       }
-      // Give extra time for initialization
-      setTimeout(resolve, 100);
     };
     
     jspdfScript.onerror = function() {
-      reject(new Error('Failed to load jsPDF library'));
+      clearTimeout(timeout);
+      reject(new Error('Failed to load jsPDF library. Please check your internet connection and try again.'));
     };
     
     document.head.appendChild(jspdfScript);
@@ -82,21 +91,34 @@ async function ensureLibrariesLoaded() {
  * instead of converting HTML to canvas
  */
 async function generateDirectPDF() {
-  // Get invoice data directly from the preview elements
-  const invoiceData = extractInvoiceData();
-  
-  // Create PDF document
-  const pdf = new window.jspdf.jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-  
-  // Add content to the PDF
-  buildPdfContent(pdf, invoiceData);
-  
-  // Save the PDF
-  pdf.save(`invoice-${invoiceData.invoiceNumber.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`);
+  try {
+    // Get invoice data directly from the preview elements
+    const invoiceData = extractInvoiceData();
+    
+    // Validate that we have the minimum required data
+    if (!invoiceData.invoiceNumber || !invoiceData.clientName) {
+      throw new Error('Invoice is missing required information. Please ensure all necessary fields are filled.');
+    }
+    
+    // Create PDF document
+    const pdf = new window.jspdf.jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    // Add content to the PDF
+    buildPdfContent(pdf, invoiceData);
+    
+    // Save the PDF with a clean filename
+    const sanitizedInvoiceNumber = invoiceData.invoiceNumber.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    pdf.save(`invoice-${sanitizedInvoiceNumber}.pdf`);
+    
+    return true;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
 }
 
 /**
