@@ -4,69 +4,7 @@
  */
 
 export function initMobileExperience() {
-  const mobileWidth = 768; // Match your md: breakpoint
-  
-  // Create a form stepper for mobile
-  function createMobileFormStepper() {
-    const formSections = document.querySelectorAll('.tab-pane');
-    const currentTab = document.querySelector('.tab-link.active')?.dataset.tab;
-    
-    // Show back/next floating buttons on mobile
-    const navButtonContainer = document.createElement('div');
-    navButtonContainer.className = 'md:hidden fixed bottom-4 left-0 right-0 flex justify-between px-4 z-30';
-    navButtonContainer.id = 'mobile-form-nav';
-    
-    const backButton = document.createElement('button');
-    backButton.className = 'bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-white px-6 py-3 rounded-lg shadow-lg';
-    backButton.innerHTML = '<span class="flex items-center"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Back</span>';
-    
-    const nextButton = document.createElement('button');
-    nextButton.className = 'bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-lg';
-    nextButton.innerHTML = '<span class="flex items-center">Next <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>';
-    
-    navButtonContainer.appendChild(backButton);
-    navButtonContainer.appendChild(nextButton);
-    
-    document.body.appendChild(navButtonContainer);
-    
-    // Handle back/next logic
-    backButton.addEventListener('click', function() {
-      const tabLinks = document.querySelectorAll('.tab-link');
-      const currentIndex = Array.from(tabLinks).findIndex(link => link.classList.contains('active'));
-      
-      if (currentIndex > 0) {
-        window.setActiveTab(tabLinks[currentIndex - 1].dataset.tab);
-      }
-    });
-    
-    nextButton.addEventListener('click', function() {
-      const tabLinks = document.querySelectorAll('.tab-link');
-      const currentIndex = Array.from(tabLinks).findIndex(link => link.classList.contains('active'));
-      
-      if (currentIndex < tabLinks.length - 1) {
-        window.setActiveTab(tabLinks[currentIndex + 1].dataset.tab);
-      } else {
-        // On last tab, trigger preview
-        document.getElementById('preview-button')?.click();
-      }
-    });
-  }
-
-  // Call on load and resize
-  function toggleMobileExperience() {
-    const isMobile = window.innerWidth < mobileWidth;
-    
-    // Remove existing mobile nav if present
-    document.getElementById('mobile-form-nav')?.remove();
-    
-    if (isMobile) {
-      createMobileFormStepper();
-    }
-  }
-
-  // Initialize
-  toggleMobileExperience();
-  window.addEventListener('resize', toggleMobileExperience);
+  // No-op: removed mobile stepper for a cleaner mobile experience
 }
 
 /**

@@ -3,7 +3,7 @@
 ---
 
 <div id="invoice-preview" class="hidden my-8">
-  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto border border-gray-100 dark:border-gray-700">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto border border-gray-100 dark:border-gray-700 w-full invoice-preview-root">
     <!-- Mobile optimized compact preview header -->
     <div class="md:hidden px-4 py-3 bg-white dark:bg-slate-800 shadow-sm rounded-lg mb-4">
       <div class="flex justify-between items-center">
@@ -23,20 +23,17 @@
     </div>
 
     <!-- Rest of the preview with collapsible class -->
-    <div class="invoice-main-preview md:block hidden">
+    <div class="invoice-main-preview md:block hidden w-full">
       <!-- Preview header with actions -->
-      <div class="flex flex-col md:flex-row justify-between items-center p-6 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-700 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center mb-4 md:mb-0">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 p-4 md:p-6 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-700 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center mb-2 md:mb-0">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 mr-2">
             <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
             <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
           </svg>
           Invoice Preview
         </h2>
-        
-        
-
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
           <!-- Action buttons -->
           <button id="share-invoice-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 transition-colors flex items-center" aria-label="Share Invoice">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
@@ -61,8 +58,6 @@
                   </svg>
                   Download as Image
                 </button>
-                
-                
                 
                 <!-- Copy to New Invoice -->
                 <button id="copy-invoice-btn" class="flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center">
@@ -93,12 +88,12 @@
       </div>
 
       <!-- Actual invoice preview content -->
-      <div class="p-6 print:p-0">
-        <div class="invoice-container bg-white border-0 p-6 print:p-2">
+      <div class="p-2 sm:p-4 md:p-6 print:p-0">
+        <div class="invoice-container bg-white border-0 p-2 sm:p-6 print:p-2">
           <!-- Header with logo and title -->
-          <div class="flex justify-between items-start mb-8 print:mb-4">
+          <div class="flex justify-between items-start mb-8 print:mb-4 flex-wrap">
             <div class="flex flex-col">
-              <div id="preview-logo" class="max-w-[200px] max-h-[80px] flex items-center mb-4"></div>
+              <div id="preview-logo" class="max-w-[120px] max-h-[48px] flex items-center mb-4 sm:max-w-[200px] sm:max-h-[80px]"></div>
               <!-- Sender Info moved here, under the logo, removed FROM text -->
               <div>
                 <div class="font-semibold text-lg mb-1 text-gray-900 dark:text-white" id="preview-sender-name"></div>
@@ -112,9 +107,7 @@
               </div>
               <!-- Mobile status badge -->
               <div class="mt-2 md:hidden" id="mobile-status-badge">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 status-badge-paid">
-                  Paid
-                </span>
+                <!-- Removed placeholder badge -->
               </div>
             </div>
           </div>
@@ -460,6 +453,38 @@
     .grid.grid-cols-1.md\:grid-cols-2 {
       display: grid !important;
       grid-template-columns: 1fr 1fr !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .invoice-preview-root,
+    .invoice-main-preview,
+    .invoice-container {
+      max-width: 100vw !important;
+      width: 100vw !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    #preview-logo {
+      max-width: 120px !important;
+      max-height: 48px !important;
+    }
+    .invoice-main-preview > .flex > h2 {
+      font-size: 1.1rem !important;
+    }
+    .invoice-main-preview .flex.flex-wrap {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .invoice-main-preview button {
+      min-width: 44vw;
+      font-size: 1rem;
+      padding: 0.75rem 0.5rem;
     }
   }
 </style>
