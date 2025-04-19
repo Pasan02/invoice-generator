@@ -4,26 +4,8 @@
 
 <div id="invoice-preview" class="hidden my-8">
   <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto border border-gray-100 dark:border-gray-700 w-full invoice-preview-root">
-    <!-- Mobile optimized compact preview header -->
-    <div class="md:hidden px-4 py-3 bg-white dark:bg-slate-800 shadow-sm rounded-lg mb-4">
-      <div class="flex justify-between items-center">
-        <div>
-          <h3 class="font-medium text-gray-900 dark:text-white">Invoice Preview</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            <span id="mobile-preview-client"></span> • <span id="mobile-preview-total"></span>
-          </p>
-        </div>
-        <button id="toggle-mobile-preview" class="text-indigo-600 dark:text-indigo-400 flex items-center text-sm">
-          <span class="toggle-text">Show Details</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1 toggle-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Rest of the preview with collapsible class -->
-    <div class="invoice-main-preview md:block hidden w-full">
+    <!-- Desktop and mobile: unified preview, just responsive -->
+    <div class="invoice-main-preview w-full">
       <!-- Preview header with actions -->
       <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 p-4 md:p-6 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-700 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700">
         <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center mb-2 md:mb-0">
@@ -72,12 +54,12 @@
           </div>
 
           <button id="preview-pdf-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-indigo-200 dark:border-slate-600 transition-colors flex items-center">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-      <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zm6.905 9.97a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72V18a.75.75 0 001.5 0v-4.19l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
-      <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-1.875a.375.375 0 01-.375-.375V5.25z" />
-    </svg>
-    Download PDF
-  </button>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+              <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zm6.905 9.97a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72V18a.75.75 0 001.5 0v-4.19l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
+              <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-1.875a.375.375 0 01-.375-.375V5.25z" />
+            </svg>
+            Download PDF
+          </button>
           <button id="back-to-edit" class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm border border-indigo-600 hover:border-indigo-700 transition-colors flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
               <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
@@ -105,69 +87,9 @@
               <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 p-4 rounded-lg text-right min-w-[180px] print:bg-gray-100">
                 <h1 class="text-2xl font-bold text-indigo-700 dark:text-indigo-400 print:text-indigo-800">INVOICE</h1>
               </div>
-              <!-- Mobile status badge -->
-              <div class="mt-2 md:hidden" id="mobile-status-badge">
-                <!-- Removed placeholder badge -->
-              </div>
             </div>
           </div>
           
-          <!-- QR Code container (hidden by default) -->
-          <div id="qr-code-container" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Payment QR Code</h3>
-                <button id="close-qr-code" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div id="qr-code" class="flex items-center justify-center p-4 bg-white"></div>
-              <p class="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
-                Scan this QR code to make a payment for invoice <span id="qr-invoice-number"></span>
-              </p>
-            </div>
-          </div>
-          
-          <!-- Share Invoice Modal (hidden by default) -->
-          <div id="share-invoice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Share Invoice</h3>
-                <button id="close-share-modal" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div class="mb-4">
-                <label for="share-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Send invoice via email
-                </label>
-                <div class="flex">
-                  <input type="email" id="share-email" class="form-input flex-grow rounded-l-lg border-r-0" placeholder="client@example.com">
-                  <button id="send-email-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-r-lg">
-                    Send
-                  </button>
-                </div>
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Or copy a shareable link
-                </label>
-                <div class="flex">
-                  <input type="text" id="share-link" readonly class="form-input flex-grow rounded-l-lg border-r-0 bg-gray-50 dark:bg-slate-700">
-                  <button id="copy-link-btn" class="bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-r-lg">
-                    Copy
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Invoice client info and details on the same line -->
           <div class="flex flex-col md:flex-row justify-between mb-8 print:mb-4 gap-6">
             <!-- Client Info -->
@@ -278,7 +200,6 @@
           <!-- Thank you message -->
           <div class="text-center text-gray-600 dark:text-gray-400">
             <p class="text-sm mb-1">Thank you for your business!</p>
-            
           </div>
         </div>
       </div>
@@ -470,8 +391,8 @@
       padding-right: 0 !important;
     }
     #preview-logo {
-      max-width: 120px !important;
-      max-height: 48px !important;
+      max-width: 100px !important;
+      max-height: 40px !important;
     }
     .invoice-main-preview > .flex > h2 {
       font-size: 1.1rem !important;
@@ -486,10 +407,17 @@
       font-size: 1rem;
       padding: 0.75rem 0.5rem;
     }
+    table th, table td {
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+      font-size: 0.95rem !important;
+    }
+    .invoice-container {
+      padding: 0.5rem !important;
+    }
   }
 </style>
 
-<!-- Add script to the end of the file -->
 <script>
   import { initInvoicePreview } from '../assets/invoice-preview.js';
   import { initPDFFunctionality } from '../assets/invoice-pdf.js';
