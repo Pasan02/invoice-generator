@@ -29,8 +29,35 @@
   
   /* Fixed action buttons at bottom */
   .sticky-footer {
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    padding-bottom: env(safe-area-inset-bottom, 0);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    z-index: 50;
+    padding: 0.75rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Invoice preview action buttons improvements for mobile */
+  #invoice-preview .flex.flex-row {
+    flex-direction: row;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.25rem !important;
+  }
+  
+  #invoice-preview .flex.flex-row > button,
+  #invoice-preview .flex.flex-row > div {
+    width: auto;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+  
+  #invoice-preview .flex.flex-row > button svg,
+  #invoice-preview .flex.flex-row > div svg {
+    margin-right: 0 !important;
   }
   
   /* Animate tab transitions for better UX */
@@ -103,6 +130,24 @@
   
   h1, h2, h3 {
     font-size: 90%;
+  }
+  
+  /* Make buttons even more compact on very small screens */
+  #invoice-preview .flex.flex-row {
+    gap: 0.125rem !important;
+  }
+  
+  #invoice-preview .flex.flex-row > button,
+  #invoice-preview .flex.flex-row > div {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.25rem !important;
+  }
+  
+  #invoice-preview .flex.flex-row > button svg,
+  #invoice-preview .flex.flex-row > div svg {
+    width: 1rem;
+    height: 1rem;
   }
 }
 

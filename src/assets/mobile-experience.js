@@ -4,15 +4,36 @@
  */
 
 export function initMobileExperience() {
-  // No-op: removed mobile stepper for a cleaner mobile experience
+  // Only run mobile optimizations if on a mobile device
+  if (isMobileDevice()) {
+    handleSafeAreas();
+    initMobileLayout();
+    preventDoubleTapZoom();
+    initSwipeNavigation();
+    detectGestures();
+    initTouchFriendlyInputs();
+    initInvoiceActionButtons();
+    
+    // Update mobile experience on orientation change
+    window.addEventListener('orientationchange', function() {
+      setTimeout(updateOrientation, 100);
+      setTimeout(updateFixedButtonsPosition, 100);
+    });
+    
+    // Initial orientation setup
+    updateOrientation();
+    updateFixedButtonsPosition();
+  }
 }
 
 /**
  * Check if we're on a mobile device
  */
 function isMobileDevice() {
-  return window.innerWidth <= 768 || 
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+  );
 }
 
 /**
@@ -283,6 +304,50 @@ function initTouchFriendlyInputs() {
 }
 
 /**
+ * Initialize invoice action buttons for mobile 
+ */
+function initInvoiceActionButtons() {
+  // Handle action buttons on invoice preview for mobile
+  document.addEventListener('DOMContentLoaded', function() {
+    const invoicePreview = document.getElementById('invoice-preview');
+    if (invoicePreview) {
+      // Make sure action buttons stack properly on mobile
+      const actionButtons = invoicePreview.querySelectorAll('.flex.flex-wrap > button, .flex.flex-wrap > div');
+      
+      // Apply full-width styling to the action buttons on small screens
+      if (window.innerWidth < 640) {
+        actionButtons.forEach(button => {
+          button.style.width = '100%';
+          button.style.marginBottom = '0.5rem';
+          button.style.justifyContent = 'center';
+        });
+      }
+      
+      // Update button styling when preview becomes visible
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'class' && 
+              !invoicePreview.classList.contains('hidden')) {
+            // Slight delay to allow the DOM to settle
+            setTimeout(() => {
+              if (window.innerWidth < 640) {
+                actionButtons.forEach(button => {
+                  button.style.width = '100%';
+                  button.style.marginBottom = '0.5rem';
+                  button.style.justifyContent = 'center';
+                });
+              }
+            }, 50);
+          }
+        });
+      });
+      
+      observer.observe(invoicePreview, { attributes: true });
+    }
+  });
+}
+
+/**
  * Handle fixed positioning for action buttons 
  */
 function updateFixedButtonsPosition() {
@@ -315,6 +380,8 @@ function debounce(func, wait) {
     const context = this;
     const args = arguments;
     clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), wait);
+    timeout = setTimeout(() => {
+      func.apply(context, args);
+    }, wait);
   };
 }
