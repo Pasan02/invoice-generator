@@ -4,202 +4,188 @@
 
 <div id="invoice-preview" class="hidden my-8">
   <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden max-w-4xl mx-auto border border-gray-100 dark:border-gray-700 w-full invoice-preview-root">
-    <!-- Desktop and mobile: unified preview, just responsive -->
-    <div class="invoice-main-preview w-full">
-      <!-- Preview header with actions -->
-      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 p-4 md:p-6 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-700 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center mb-2 md:mb-0">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 mr-2">
-            <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
-          </svg>
-          Invoice Preview
-        </h2>
-        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
-          <!-- Action buttons -->
-          <button id="share-invoice-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 transition-colors flex items-center" aria-label="Share Invoice">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-              <path fill-rule="evenodd" d="M15.75 4.5a3 3 0 11.825 2.066l-8.421 4.679a3.002 3.002 0 010 1.51l8.421 4.679a3 3 0 11-.729 1.31l-8.421-4.678a3 3 0 110-4.132l8.421-4.679a3 3 0 01-.096-.755z" clip-rule="evenodd" />
-            </svg>
-            Share
-          </button>
-          
-          <div class="dropdown relative">
-            <button id="more-actions-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 transition-colors flex items-center" aria-label="More Actions">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-                <path fill-rule="evenodd" d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" clip-rule="evenodd" />
+    <div class="scale-container">
+      <div class="invoice-main-preview w-full">
+        <div class="invoice-scale-wrapper">
+          <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 p-4 md:p-6 bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-slate-700 dark:to-slate-800 border-b border-indigo-100 dark:border-slate-700">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center mb-2 md:mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 mr-2">
+                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z" clip-rule="evenodd" />
               </svg>
-              More
-            </button>
-            <div id="dropdown-menu" class="dropdown-menu hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-md shadow-lg z-10 border border-gray-100 dark:border-slate-700">
-              <div class="py-1">
-                <!-- Download as Image -->
-                <button id="download-image-btn" class="flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center">
+              Invoice Preview
+            </h2>
+            <div class="flex flex-wrap gap-2 w-full md:w-auto justify-center md:justify-end">
+              <button id="share-invoice-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 transition-colors flex items-center" aria-label="Share Invoice">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+                  <path fill-rule="evenodd" d="M15.75 4.5a3 3 0 11.825 2.066l-8.421 4.679a3.002 3.002 0 010 1.51l8.421 4.679a3 3 0 11-.729 1.31l-8.421-4.678a3 3 0 110-4.132l8.421-4.679a3 3 0 01-.096-.755z" clip-rule="evenodd" />
+                </svg>
+                Share
+              </button>
+              
+              <div class="dropdown relative">
+                <button id="more-actions-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 transition-colors flex items-center" aria-label="More Actions">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M4.5 12a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zm6 0a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" clip-rule="evenodd" />
                   </svg>
-                  Download as Image
+                  More
                 </button>
+                <div id="dropdown-menu" class="dropdown-menu hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-md shadow-lg z-10 border border-gray-100 dark:border-slate-700">
+                  <div class="py-1">
+                    <button id="download-image-btn" class="flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+                        <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                      </svg>
+                      Download as Image
+                    </button>
+                    <button id="copy-invoice-btn" class="flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+                        <path d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 013.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0121 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 017.5 16.125V3.375z" />
+                        <path d="M15 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0017.25 7.5h-1.875A.375.375 0 0115 7.125V5.25zM4.875 6H6v10.125A3.375 3.375 0 009.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 013 20.625V7.875C3 6.839 3.84 6 4.875 6z" />
+                      </svg>
+                      Copy to New Invoice
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button id="preview-pdf-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-indigo-200 dark:border-slate-600 transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+                  <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zm6.905 9.97a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72V18a.75.75 0 001.5 0v-4.19l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
+                  <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-1.875a.375.375 0 01-.375-.375V5.25z" />
+                </svg>
+                Download PDF
+              </button>
+              <button id="back-to-edit" class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm border border-indigo-600 hover:border-indigo-700 transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
+                  <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
+                </svg>
+                Edit
+              </button>
+            </div>
+          </div>
+
+          <div class="p-2 sm:p-4 md:p-6 print:p-0">
+            <div class="invoice-container bg-white border-0 p-2 sm:p-6 print:p-2">
+              <div class="flex justify-between items-start mb-8 print:mb-4 flex-wrap">
+                <div class="flex flex-col">
+                  <div id="preview-logo" class="max-w-[120px] max-h-[48px] flex items-center mb-4 sm:max-w-[200px] sm:max-h-[80px]"></div>
+                  <div>
+                    <div class="font-semibold text-lg mb-1 text-gray-900 dark:text-white" id="preview-sender-name"></div>
+                    <div class="text-gray-700 dark:text-gray-300 whitespace-pre-line" id="preview-sender-address"></div>
+                    <div class="text-gray-600 dark:text-gray-400 mt-2" id="preview-sender-contact"></div>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 p-4 rounded-lg text-right min-w-[180px] print:bg-gray-100">
+                    <h1 class="text-2xl font-bold text-indigo-700 dark:text-indigo-400 print:text-indigo-800">INVOICE</h1>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex flex-col md:flex-row justify-between mb-8 print:mb-4 gap-6">
+                <div class="w-full md:w-1/2">
+                  <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm mb-1 uppercase">Bill To</h3>
+                  <div class="font-semibold text-lg mb-1 text-gray-900 dark:text-white" id="preview-client-name"></div>
+                  <div class="text-gray-700 dark:text-gray-300 whitespace-pre-line" id="preview-client-address"></div>
+                  <div class="text-gray-600 dark:text-gray-400 mt-2" id="preview-client-contact"></div>
+                </div>
                 
-                <!-- Copy to New Invoice -->
-                <button id="copy-invoice-btn" class="flex w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-                    <path d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 013.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0121 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 017.5 16.125V3.375z" />
-                    <path d="M15 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0017.25 7.5h-1.875A.375.375 0 0115 7.125V5.25zM4.875 6H6v10.125A3.375 3.375 0 009.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 013 20.625V7.875C3 6.839 3.84 6 4.875 6z" />
-                  </svg>
-                  Copy to New Invoice
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <button id="preview-pdf-btn" class="px-4 py-2 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-600 rounded-lg shadow-sm border border-indigo-200 dark:border-slate-600 transition-colors flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-              <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zm6.905 9.97a.75.75 0 00-1.06 0l-3 3a.75.75 0 101.06 1.06l1.72-1.72V18a.75.75 0 001.5 0v-4.19l1.72 1.72a.75.75 0 101.06-1.06l-3-3z" clip-rule="evenodd" />
-              <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-1.875a.375.375 0 01-.375-.375V5.25z" />
-            </svg>
-            Download PDF
-          </button>
-          <button id="back-to-edit" class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm border border-indigo-600 hover:border-indigo-700 transition-colors flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2">
-              <path d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-12.15 12.15a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32L19.513 8.2z" />
-            </svg>
-            Edit
-          </button>
-        </div>
-      </div>
-
-      <!-- Actual invoice preview content -->
-      <div class="p-2 sm:p-4 md:p-6 print:p-0">
-        <div class="invoice-container bg-white border-0 p-2 sm:p-6 print:p-2">
-          <!-- Header with logo and title -->
-          <div class="flex justify-between items-start mb-8 print:mb-4 flex-wrap">
-            <div class="flex flex-col">
-              <div id="preview-logo" class="max-w-[120px] max-h-[48px] flex items-center mb-4 sm:max-w-[200px] sm:max-h-[80px]"></div>
-              <!-- Sender Info moved here, under the logo, removed FROM text -->
-              <div>
-                <div class="font-semibold text-lg mb-1 text-gray-900 dark:text-white" id="preview-sender-name"></div>
-                <div class="text-gray-700 dark:text-gray-300 whitespace-pre-line" id="preview-sender-address"></div>
-                <div class="text-gray-600 dark:text-gray-400 mt-2" id="preview-sender-contact"></div>
-              </div>
-            </div>
-            <div class="flex flex-col items-end">
-              <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 p-4 rounded-lg text-right min-w-[180px] print:bg-gray-100">
-                <h1 class="text-2xl font-bold text-indigo-700 dark:text-indigo-400 print:text-indigo-800">INVOICE</h1>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Invoice client info and details on the same line -->
-          <div class="flex flex-col md:flex-row justify-between mb-8 print:mb-4 gap-6">
-            <!-- Client Info -->
-            <div class="w-full md:w-1/2">
-              <h3 class="font-medium text-gray-500 dark:text-gray-400 text-sm mb-1 uppercase">Bill To</h3>
-              <div class="font-semibold text-lg mb-1 text-gray-900 dark:text-white" id="preview-client-name"></div>
-              <div class="text-gray-700 dark:text-gray-300 whitespace-pre-line" id="preview-client-address"></div>
-              <div class="text-gray-600 dark:text-gray-400 mt-2" id="preview-client-contact"></div>
-            </div>
-            
-            <!-- Invoice Info moved next to client info -->
-            <div class="w-full md:w-1/3">
-              <div class="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 print:bg-gray-100">
-                <div class="flex justify-between mb-2">
-                  <span class="text-gray-600 dark:text-gray-400">Invoice #:</span>
-                  <span class="font-medium text-gray-900 dark:text-white" id="preview-invoice-number"></span>
-                </div>
-                <div class="flex justify-between mb-2">
-                  <span class="text-gray-600 dark:text-gray-400">Date:</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-invoice-date"></span>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-gray-600 dark:text-gray-400">Due Date:</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-due-date"></span>
+                <div class="w-full md:w-1/3">
+                  <div class="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 print:bg-gray-100">
+                    <div class="flex justify-between mb-2">
+                      <span class="text-gray-600 dark:text-gray-400">Invoice #:</span>
+                      <span class="font-medium text-gray-900 dark:text-white" id="preview-invoice-number"></span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                      <span class="text-gray-600 dark:text-gray-400">Date:</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-invoice-date"></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Due Date:</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-due-date"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <!-- Line items table -->
-          <div class="overflow-x-auto mb-8 print:mb-4">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead>
-                <tr class="bg-gray-50 dark:bg-slate-700 print:bg-gray-100">
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qty</th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rate</th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tax</th>
-                  <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                </tr>
-              </thead>
-              <tbody id="preview-line-items" class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
-                <!-- Line items will be added here via JS -->
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Totals section -->
-          <div class="flex justify-end mb-8 print:mb-4">
-            <div class="w-full md:w-64">
-              <div class="flex justify-between py-2">
-                <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                <span class="text-gray-900 dark:text-white">
-                  <span id="preview-currency-symbol"></span>
-                  <span id="preview-subtotal"></span>
-                </span>
+              
+              <div class="overflow-x-auto mb-8 print:mb-4">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead>
+                    <tr class="bg-gray-50 dark:bg-slate-700 print:bg-gray-100">
+                      <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Description</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qty</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rate</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tax</th>
+                      <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="preview-line-items" class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  </tbody>
+                </table>
               </div>
-              <div class="flex justify-between py-2">
-                <span class="text-gray-600 dark:text-gray-400">Tax:</span>
-                <span class="text-gray-900 dark:text-white">
-                  <span id="preview-currency-symbol-tax"></span>
-                  <span id="preview-tax-total"></span>
-                </span>
-              </div>
-              <div class="flex justify-between py-3 border-t border-gray-200 dark:border-gray-700 font-semibold text-lg">
-                <span class="text-gray-800 dark:text-gray-200">Total:</span>
-                <span class="text-indigo-600 dark:text-indigo-400">
-                  <span id="preview-currency-symbol-total"></span>
-                  <span id="preview-invoice-total"></span>
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Notes section - Changed to hide the entire section when empty using id="notes-section" -->
-          <div id="notes-section" class="mb-8 print:mb-4">
-            <div class="bg-gray-50 dark:bg-slate-700 print:bg-gray-100 rounded-lg p-4">
-              <h4 class="font-medium text-gray-900 dark:text-white mb-2">Notes</h4>
-              <div class="text-gray-600 dark:text-gray-300" id="preview-notes"></div>
-            </div>
-          </div>
-          
-          <!-- Payment details section - removed highlight styling and background -->
-          <div id="bank-details-section" class="mb-8 print:mb-4">
-            <div class="p-4">
-              <h4 class="font-medium text-gray-900 dark:text-white mb-2">Payment Details</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex flex-col">
-                  <span class="text-gray-500 dark:text-gray-400 text-sm">Bank Name</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-bank-name"></span>
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-gray-500 dark:text-gray-400 text-sm">Account Holder</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-account-holder"></span>
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-gray-500 dark:text-gray-400 text-sm">Account Number</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-account-number"></span>
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-gray-500 dark:text-gray-400 text-sm">Routing/SWIFT/IBAN</span>
-                  <span class="text-gray-900 dark:text-white" id="preview-routing-number"></span>
+              
+              <div class="flex justify-end mb-8 print:mb-4">
+                <div class="w-full md:w-64">
+                  <div class="flex justify-between py-2">
+                    <span class="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                    <span class="text-gray-900 dark:text-white">
+                      <span id="preview-currency-symbol"></span>
+                      <span id="preview-subtotal"></span>
+                    </span>
+                  </div>
+                  <div class="flex justify-between py-2">
+                    <span class="text-gray-600 dark:text-gray-400">Tax:</span>
+                    <span class="text-gray-900 dark:text-white">
+                      <span id="preview-currency-symbol-tax"></span>
+                      <span id="preview-tax-total"></span>
+                    </span>
+                  </div>
+                  <div class="flex justify-between py-3 border-t border-gray-200 dark:border-gray-700 font-semibold text-lg">
+                    <span class="text-gray-800 dark:text-gray-200">Total:</span>
+                    <span class="text-indigo-600 dark:text-indigo-400">
+                      <span id="preview-currency-symbol-total"></span>
+                      <span id="preview-invoice-total"></span>
+                    </span>
+                  </div>
                 </div>
               </div>
+              
+              <div id="notes-section" class="mb-8 print:mb-4">
+                <div class="bg-gray-50 dark:bg-slate-700 print:bg-gray-100 rounded-lg p-4">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">Notes</h4>
+                  <div class="text-gray-600 dark:text-gray-300" id="preview-notes"></div>
+                </div>
+              </div>
+              
+              <div id="bank-details-section" class="mb-8 print:mb-4">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">Payment Details</h4>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                      <span class="text-gray-500 dark:text-gray-400 text-sm">Bank Name</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-bank-name"></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-gray-500 dark:text-gray-400 text-sm">Account Holder</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-account-holder"></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-gray-500 dark:text-gray-400 text-sm">Account Number</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-account-number"></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-gray-500 dark:text-gray-400 text-sm">Routing/SWIFT/IBAN</span>
+                      <span class="text-gray-900 dark:text-white" id="preview-routing-number"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="text-center text-gray-600 dark:text-gray-400">
+                <p class="text-sm mb-1">Thank you for your business!</p>
+              </div>
             </div>
-          </div>
-          
-          <!-- Thank you message -->
-          <div class="text-center text-gray-600 dark:text-gray-400">
-            <p class="text-sm mb-1">Thank you for your business!</p>
           </div>
         </div>
       </div>
@@ -208,7 +194,6 @@
 </div>
 
 <style>
-  /* Status badge colors */
   #invoice-status.invoice-status-paid,
   .status-badge-paid {
     @apply text-green-800 dark:text-green-300 border-green-500 bg-green-100 dark:bg-green-900/30;
@@ -229,14 +214,13 @@
     @apply text-gray-800 dark:text-gray-300 border-gray-500 bg-gray-100 dark:bg-gray-800;
   }
   
-  /* Dropdown styling */
   .dropdown {
     position: relative;
     display: inline-block;
   }
   
   .dropdown-menu {
-    min-width: 14rem;  /* Updated from 10rem to 14rem to match w-56 */
+    min-width: 14rem;
     transform-origin: top right;
     animation: dropdown-animation 0.2s ease-out;
   }
@@ -252,31 +236,25 @@
     }
   }
   
-  /* Comprehensive print styles to make printed version match preview exactly */
   @media print {
-    /* Reset page margins and set paper size */
     @page {
       size: A4;
       margin: 0.5cm;
     }
     
-    /* Hide UI elements when printing */
     button, .dropdown, .status-badge-paid,
     #mobile-status-badge, #invoice-status {
       display: none !important;
     }
     
-    /* Hide header with buttons */
     #invoice-preview > div > div:first-child {
       display: none !important;
     }
     
-    /* Hide modals and fixed elements */
     #qr-code-container, #share-invoice-modal {
       display: none !important;
     }
     
-    /* Full width for invoice on print */
     #invoice-preview, 
     #invoice-preview > div {
       width: 100% !important;
@@ -289,14 +267,12 @@
       overflow: visible !important;
     }
     
-    /* Invoice container styling */
     .invoice-container {
       padding: 10mm !important;
       background-color: white !important;
       color: black !important;
     }
     
-    /* Ensure background colors print correctly */
     .bg-gradient-to-r,
     .bg-gray-50,
     .bg-white {
@@ -305,11 +281,10 @@
       -webkit-print-color-adjust: exact !important;
     }
     
-    /* Color adjustments for print */
     .text-indigo-600,
     .text-indigo-700,
     .text-indigo-800 {
-      color: #4338ca !important; /* indigo-600 */
+      color: #4338ca !important;
       print-color-adjust: exact !important;
       -webkit-print-color-adjust: exact !important;
     }
@@ -319,20 +294,18 @@
     }
     
     .text-gray-700, .dark\:text-gray-300 {
-      color: #374151 !important; /* gray-700 */
+      color: #374151 !important;
     }
     
     .text-gray-600, .text-gray-500, .dark\:text-gray-400 {
-      color: #4b5563 !important; /* gray-600 */
+      color: #4b5563 !important;
     }
     
-    /* Background adjustments */
     .rounded-lg {
-      border: 1px solid #e5e7eb !important; /* gray-200 */
+      border: 1px solid #e5e7eb !important;
       border-radius: 0.5rem !important;
     }
     
-    /* Layout adjustments for print */
     .flex-col.md\:flex-row {
       flex-direction: row !important;
     }
@@ -345,7 +318,6 @@
       width: 33.333333% !important;
     }
     
-    /* Table styling for print */
     table {
       width: 100% !important;
       border-collapse: collapse !important;
@@ -356,7 +328,7 @@
     }
     
     thead tr {
-      background-color: #f9fafb !important; /* gray-50 */
+      background-color: #f9fafb !important;
       border-bottom: 1px solid #e5e7eb !important;
     }
     
@@ -364,13 +336,11 @@
       border-bottom: 1px solid #e5e7eb !important;
     }
     
-    /* Notes and info box styling */
     .bg-gray-50 {
-      background-color: #f9fafb !important; /* gray-50 */
+      background-color: #f9fafb !important;
       border: 1px solid #e5e7eb !important;
     }
     
-    /* Grid layout for payment details */
     .grid.grid-cols-1.md\:grid-cols-2 {
       display: grid !important;
       grid-template-columns: 1fr 1fr !important;
@@ -378,42 +348,35 @@
   }
 
   @media (max-width: 640px) {
-    .invoice-preview-root,
-    .invoice-main-preview,
-    .invoice-container {
-      max-width: 100vw !important;
-      width: 100vw !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
+    .invoice-preview-root {
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 !important;
       border-radius: 0 !important;
       box-shadow: none !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+      border: none !important;
+      height: auto !important; 
+      overflow: visible !important; 
     }
-    #preview-logo {
-      max-width: 100px !important;
-      max-height: 40px !important;
+
+    .scale-container {
+        width: 100%;
+        overflow: hidden; 
+        height: 0; 
     }
-    .invoice-main-preview > .flex > h2 {
-      font-size: 1.1rem !important;
+
+    .invoice-main-preview {
+      width: 896px !important; 
+      transform-origin: top left; 
+      transform: scale(var(--invoice-scale-factor, 1)); 
+      padding: 0 !important;
+      margin: 0 !important;
+      height: auto;
     }
-    .invoice-main-preview .flex.flex-wrap {
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: center;
-    }
-    .invoice-main-preview button {
-      min-width: 44vw;
-      font-size: 1rem;
-      padding: 0.75rem 0.5rem;
-    }
-    table th, table td {
-      padding-left: 0.5rem !important;
-      padding-right: 0.5rem !important;
-      font-size: 0.95rem !important;
-    }
-    .invoice-container {
-      padding: 0.5rem !important;
+    
+    .invoice-scale-wrapper {
+        width: 100%;
+        height: auto;
     }
   }
 </style>
@@ -421,8 +384,69 @@
 <script>
   import { initInvoicePreview } from '../assets/invoice-preview.js';
   import { initPDFFunctionality } from '../assets/invoice-pdf.js';
+
+  function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+          const later = () => {
+              clearTimeout(timeout);
+              func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+      };
+  };
+
+  function applyInvoiceScaling() {
+    const scaleContainer = document.querySelector('.scale-container');
+    const preview = document.querySelector('.invoice-main-preview');
+    const wrapper = document.querySelector('.invoice-scale-wrapper'); 
+
+    if (!scaleContainer || !preview || !wrapper || window.innerWidth >= 640) {
+      scaleContainer?.style.setProperty('height', 'auto');
+      preview?.style.setProperty('--invoice-scale-factor', '1');
+      return;
+    }
+
+    const originalWidth = 896; 
+    const availableWidth = scaleContainer.offsetWidth;
+    
+    if (availableWidth <= 0) return;
+
+    const scaleFactor = availableWidth / originalWidth;
+
+    preview.style.setProperty('--invoice-scale-factor', '1');
+    const originalHeight = wrapper.offsetHeight; 
+
+    preview.style.setProperty('--invoice-scale-factor', scaleFactor.toString());
+
+    const scaledHeight = originalHeight * scaleFactor;
+
+    scaleContainer.style.height = `${scaledHeight}px`;
+  }
+
+  const debouncedApplyScaling = debounce(applyInvoiceScaling, 100); 
+
+  document.addEventListener('DOMContentLoaded', applyInvoiceScaling);
+  window.addEventListener('resize', debouncedApplyScaling); 
   
-  // Initialize both preview and PDF functionality
+  const previewElement = document.getElementById('invoice-preview');
+  if (previewElement) {
+      const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+              if (mutation.attributeName === 'class' && !previewElement.classList.contains('hidden')) {
+                  requestAnimationFrame(() => {
+                      setTimeout(applyInvoiceScaling, 50); 
+                  });
+              }
+          });
+      });
+      observer.observe(previewElement, { attributes: true });
+      if (!previewElement.classList.contains('hidden')) {
+          applyInvoiceScaling();
+      }
+  }
+
   initInvoicePreview();
   initPDFFunctionality();
 </script>
