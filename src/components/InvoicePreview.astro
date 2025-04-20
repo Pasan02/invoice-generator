@@ -353,6 +353,7 @@
       max-width: 100% !important;
       width: 100% !important;
       margin: 0 !important;
+      padding: 0 !important;
       border-radius: 0 !important;
       box-shadow: none !important;
       border: none !important;
@@ -361,9 +362,11 @@
     }
 
     .scale-container {
-        width: 100%;
+        width: 100%;  /* Increased width to use more screen space */
+        margin: 0 auto; /* Center container */
         overflow: hidden; 
         height: 0; 
+        padding: 0;
     }
 
     .invoice-main-preview {
@@ -378,6 +381,25 @@
     .invoice-scale-wrapper {
         width: 100%;
         height: auto;
+        margin: 0 auto;
+    }
+
+    /* Increase button sizes for better mobile experience */
+    button {
+        padding: 0.6rem 0.8rem !important;
+    }
+
+    button svg {
+        width: 1.35rem !important;
+        height: 1.35rem !important;
+    }
+    
+    button span {
+        display: none !important; /* Hide text to make icon-only buttons */
+    }
+
+    .flex.flex-row.gap-2.justify-end.items-center {
+        gap: 0.5rem !important; /* Add more space between buttons */
     }
   }
 </style>
