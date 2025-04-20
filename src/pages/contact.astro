@@ -12,7 +12,13 @@ import Layout from '../layouts/Layout.astro';
 					We'd love to hear from you. Please fill out the form below and we'll get back to you as soon as possible.
 				</p>
 				
-				<form id="contact-form" class="space-y-6">
+				<form id="contact-form" action="https://formsubmit.co/ajax/pasanranaweera03@gmail.com" method="POST" class="space-y-6">
+					<!-- FormSubmit configuration -->
+					<input type="hidden" name="_subject" value="New Contact Form Submission - Invoice Generator">
+					<input type="hidden" name="_captcha" value="true">
+					<input type="text" name="_honey" style="display:none">
+					<input type="hidden" name="_template" value="table">
+					
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 						<div>
 							<label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
@@ -61,6 +67,7 @@ import Layout from '../layouts/Layout.astro';
 					<div class="flex justify-end">
 						<button 
 							type="submit"
+							id="submit-button"
 							class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
 						>
 							Send Message
@@ -84,6 +91,22 @@ import Layout from '../layouts/Layout.astro';
 					</div>
 				</div>
 				
+				<div id="error-message" class="mt-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 p-4 rounded-md hidden">
+					<div class="flex">
+						<div class="flex-shrink-0">
+							<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+								<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+							</svg>
+						</div>
+						<div class="ml-3">
+							<h3 class="text-sm font-medium text-red-800 dark:text-red-200">Failed to send message</h3>
+							<div class="mt-2 text-sm text-red-700 dark:text-red-300">
+								<p>Please try again later or contact us directly at pasanranaweera03@gmail.com</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				
 				<div class="mt-12">
 					<h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">Other Ways to Connect</h2>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
@@ -95,7 +118,7 @@ import Layout from '../layouts/Layout.astro';
 							</div>
 							<div class="ml-3">
 								<h3 class="font-medium text-gray-900 dark:text-white">Email</h3>
-								<p class="mt-1 text-gray-600 dark:text-gray-400">contact@simpleinvoice.com</p>
+								<p class="mt-1 text-gray-600 dark:text-gray-400">pasanranaweera03@gmail.com</p>
 							</div>
 						</div>
 						
@@ -121,24 +144,97 @@ import Layout from '../layouts/Layout.astro';
 	document.addEventListener('DOMContentLoaded', function() {
 		const contactForm = document.getElementById('contact-form');
 		const successMessage = document.getElementById('success-message');
+		const errorMessage = document.getElementById('error-message');
+		const submitButton = document.getElementById('submit-button');
 		
-		contactForm?.addEventListener('submit', function(e) {
-			e.preventDefault();
+		// Check if URL params show success=true (for page reload after submission)
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('success') === 'true' && successMessage) {
+			successMessage.classList.remove('hidden');
 			
-			// In a real app, you would send this data to your server
-			// For now, just show the success message
-			if (successMessage) {
-				successMessage.classList.remove('hidden');
-				contactForm.reset();
+			// Scroll to success message
+			successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			
+			// Hide success message after 5 seconds
+			setTimeout(() => {
+				successMessage.classList.add('hidden');
+			}, 5000);
+		}
+		
+		if (contactForm) {
+			contactForm.addEventListener('submit', async function(e) {
+				e.preventDefault();
 				
-				// Scroll to success message
-				successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				if (submitButton) {
+					// Disable button and show loading state
+					submitButton.disabled = true;
+					submitButton.innerHTML = `
+						<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+							<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+						</svg>
+						Sending...
+					`;
+				}
 				
-				// Hide success message after 5 seconds
-				setTimeout(() => {
-					successMessage.classList.add('hidden');
-				}, 5000);
-			}
-		});
+				try {
+					const formData = new FormData(contactForm);
+					const data = {};
+					formData.forEach((value, key) => {
+						data[key] = value;
+					});
+					
+					// Send data to FormSubmit using fetch API
+					const response = await fetch('https://formsubmit.co/ajax/pasanranaweera03@gmail.com', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						body: JSON.stringify(data)
+					});
+					
+					const result = await response.json();
+					
+					if (result.success === 'true' || result.success === true) {
+						// Show success message
+						if (successMessage) {
+							successMessage.classList.remove('hidden');
+							contactForm.reset();
+							
+							// Scroll to success message
+							successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+							
+							// Hide success message after 5 seconds
+							setTimeout(() => {
+								successMessage.classList.add('hidden');
+							}, 5000);
+						}
+					} else {
+						throw new Error('Form submission failed');
+					}
+				} catch (error) {
+					console.error('Error submitting form:', error);
+					// Show error message
+					if (errorMessage) {
+						errorMessage.classList.remove('hidden');
+						
+						// Scroll to error message
+						errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						
+						// Hide error message after 5 seconds
+						setTimeout(() => {
+							errorMessage.classList.add('hidden');
+						}, 5000);
+					}
+				} finally {
+					// Reset button state
+					if (submitButton) {
+						submitButton.disabled = false;
+						submitButton.innerHTML = 'Send Message';
+					}
+				}
+			});
+		}
 	});
 </script>
